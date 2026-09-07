@@ -397,6 +397,7 @@ table tr.row-del td{opacity:.4}
           </select>
           <select class="ctrl-select" id="filterDiaAsis" onchange="filterDia=this.value;renderCurrentAsisView()">
             <option value="">Todos los d&iacute;as</option>
+            <option value="d0">Lunes 28 sep</option>
             <option value="d1">Martes 29 sep</option>
             <option value="d2">Mi&eacute;rc. 30 sep</option>
             <option value="d3">Jueves 1 oct</option>
@@ -478,6 +479,7 @@ table tr.row-del td{opacity:.4}
           <select id="eDia">
             <option value="">Selecciona...</option>
             <optgroup label="Semana principal">
+              <option value="d0">Lunes 28 de septiembre</option>
               <option value="d1">Martes 29 de septiembre</option>
               <option value="d2">Mi&#233;rcoles 30 de septiembre</option>
               <option value="d3">Jueves 1 de octubre</option>
@@ -770,7 +772,7 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 function fmtDate(iso){ if(!iso)return'–'; var d=new Date(iso); return d.toLocaleDateString('es-CO',{timeZone:'America/Bogota',day:'numeric',month:'short',year:'numeric'}); }
 function fmtTime(iso){ if(!iso)return'–'; var d=new Date(iso); return d.toLocaleTimeString('es-CO',{timeZone:'America/Bogota',hour:'2-digit',minute:'2-digit',hour12:true}); }
 
-var DAY_LABELS = { d1:'Lunes 29 sep', d2:'Martes 30 sep', d3:'Mi\u00e9rc. 1 oct', d4:'Jueves 2 oct' };
+var DAY_LABELS = { d0:'Lunes 28 sep', d1:'Martes 29 sep', d2:'Mi\u00e9rc. 30 sep', d3:'Jueves 1 oct', d4:'Viernes 2 oct' };
 function getDayLabel(dia){ return DAY_LABELS[dia] || dia || '–'; }
 
 function getSemanaLabel(semanaId){
@@ -781,7 +783,7 @@ function getSemana(id){ return semanas.find(function(s){ return s.id === id; });
 
 // ── bogToUTC: dia key or YYYY-MM-DD + HH:MM → ISO UTC ─────────────────
 var dateMapFull = {
-  d1:'2026-09-29', d2:'2026-09-30', d3:'2026-10-01', d4:'2026-10-02'
+  d0:'2026-09-28', d1:'2026-09-29', d2:'2026-09-30', d3:'2026-10-01', d4:'2026-10-02'
 };
 function bogToUTC(diaOrDate, hhmm){
   var dateStr = dateMapFull[diaOrDate] || diaOrDate;
