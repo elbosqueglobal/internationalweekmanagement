@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Monitor &middot; Semana Internacional de Corea &middot; UEB 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;1,400&family=Noto+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1c2b4a;--ink2:#2e4270;--sakura:#c8455a;--sakura-l:#f5d0d8;
+  --gold:#b8860b;--sage:#5a7a5a;--hanji:#fdf6ec;--hanji2:#f0e8d8;
+  --card:#ffffff;--border:rgba(28,43,74,.1);
+  --sh:0 2px 14px rgba(28,43,74,.07);--sh-h:0 6px 22px rgba(28,43,74,.13);
+  --r:10px;--dim:#7a7a9a;
+  --sb-w:220px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Noto Sans',sans-serif;background:var(--hanji);color:#2a2a3a;display:flex;min-height:100vh}
+
+/* ── LOGIN ────────────────────────────────────────────────────────── */
+#loginScreen{position:fixed;inset:0;background:var(--ink);
+  display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column}
+.login-box{background:var(--card);border-radius:16px;padding:2.4rem 2.2rem;
+  max-width:340px;width:90%;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+.login-logo{font-family:'Noto Serif',serif;font-size:1rem;font-weight:600;
+  color:var(--ink);margin-bottom:.25rem;text-align:center}
+.login-sub{font-size:.72rem;color:#aaa;text-align:center;margin-bottom:1.6rem;letter-spacing:.05em}
+.login-box input{width:100%;padding:.65rem .9rem;border:1.5px solid var(--border);
+  border-radius:10px;margin-bottom:.85rem;font-family:'Noto Sans',sans-serif;font-size:.9rem;
+  color:var(--ink);background:var(--hanji);outline:none;transition:border-color .18s}
+.login-box input:focus{border-color:var(--sakura);background:#fff}
+.login-box button{width:100%;padding:.7rem;background:var(--ink);color:var(--hanji);
+  border:none;border-radius:10px;font-family:'Noto Sans',sans-serif;font-size:.88rem;
+  font-weight:700;cursor:pointer;transition:background .18s;text-transform:uppercase;letter-spacing:.06em}
+.login-box button:hover{background:var(--sakura)}
+.login-msg{font-size:.76rem;color:var(--sakura);margin-top:.5rem;min-height:1rem;text-align:center}
+
+/* ── SPINNER ──────────────────────────────────────────────────────── */
+#spinner{position:fixed;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--ink),var(--sakura),var(--gold));
+  animation:loadp 1.2s infinite;display:none;z-index:1000}
+@keyframes loadp{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── SIDEBAR ──────────────────────────────────────────────────────── */
+#appShell{display:flex;width:100%;min-height:100vh}
+.sidebar{width:var(--sb-w);background:var(--ink);display:flex;flex-direction:column;
+  flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sb-brand{padding:1.6rem 1.3rem 1.2rem}
+.sb-eyebrow{font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--sakura);opacity:.85;margin-bottom:.3rem}
+.sb-title{font-family:'Noto Serif',serif;font-size:.95rem;color:var(--hanji);
+  line-height:1.35;font-weight:600}
+.sb-sub{font-size:.65rem;color:rgba(253,246,236,.35);margin-top:.25rem;letter-spacing:.03em}
+.sb-divider{height:1px;background:rgba(255,255,255,.07);margin:.3rem 1rem}
+.nav-tab{display:flex;align-items:center;gap:.65rem;padding:.75rem 1.3rem;
+  cursor:pointer;color:rgba(253,246,236,.45);font-size:.8rem;font-weight:600;
+  border:none;background:none;width:100%;text-align:left;
+  transition:color .18s,background .18s;text-transform:uppercase;letter-spacing:.06em}
+.nav-tab:hover{color:var(--hanji);background:rgba(255,255,255,.05)}
+.nav-tab.active{color:var(--hanji);background:rgba(200,69,90,.18)}
+.nav-tab.active .nav-icon{color:var(--sakura)}
+.nav-icon{font-size:.8rem;opacity:.7;min-width:14px}
+.sb-spacer{flex:1}
+.sb-footer{padding:.9rem 1.3rem;font-size:.62rem;color:rgba(253,246,236,.22);
+  display:flex;align-items:center;justify-content:space-between}
+.btn-logout{background:none;border:none;cursor:pointer;font-size:.62rem;
+  color:rgba(200,69,90,.6);font-family:'Noto Sans',sans-serif;
+  text-transform:uppercase;letter-spacing:.05em;transition:color .15s}
+.btn-logout:hover{color:var(--sakura)}
+
+/* ── MAIN ─────────────────────────────────────────────────────────── */
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.topbar{padding:1.1rem 2rem;display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:.8rem;border-bottom:1px solid var(--border);background:var(--card)}
+.topbar h1{font-family:'Noto Serif',serif;font-size:1rem;color:var(--ink);font-weight:600}
+.topbar-actions{display:flex;align-items:center;gap:.6rem}
+.top-btn{padding:.42rem 1rem;border:1.5px solid var(--border);border-radius:50px;
+  background:none;font-family:'Noto Sans',sans-serif;font-size:.74rem;font-weight:700;
+  cursor:pointer;color:var(--ink);transition:all .18s;text-transform:uppercase;letter-spacing:.04em}
+.top-btn:hover{background:var(--ink);color:var(--hanji);border-color:var(--ink)}
+.top-btn.primary{background:var(--sakura);color:white;border-color:var(--sakura)}
+.top-btn.primary:hover{background:#a33048}
+
+/* ── KPIs ─────────────────────────────────────────────────────────── */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:.9rem;padding:1.5rem 2rem}
+.kpi-card{background:var(--card);border-radius:var(--r);padding:1.1rem 1.2rem;
+  box-shadow:var(--sh);border-left:4px solid var(--border);transition:border-color .18s}
+.kpi-card:nth-child(1){border-left-color:var(--sakura)}
+.kpi-card:nth-child(2){border-left-color:var(--gold)}
+.kpi-card:nth-child(3){border-left-color:var(--sage)}
+.kpi-card:nth-child(4){border-left-color:var(--ink2)}
+.kpi-card:nth-child(5){border-left-color:#ccc}
+.kv{font-family:'Noto Serif',serif;font-size:1.7rem;font-weight:600;color:var(--ink)}
+.kl{font-size:.68rem;color:#aaa;margin-top:.15rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+
+/* ── SECTION ──────────────────────────────────────────────────────── */
+.section{padding:0 2rem 2.5rem;flex:1}
+.section-header{display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:.7rem;margin-bottom:1.2rem;padding-top:1rem}
+.section-header h2{font-family:'Noto Serif',serif;font-size:.95rem;color:var(--ink);font-weight:600}
+.section-controls{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.ctrl-input{padding:.48rem .85rem;border:1.5px solid var(--border);border-radius:50px;
+  font-family:'Noto Sans',sans-serif;font-size:.78rem;color:var(--ink);
+  background:var(--hanji);outline:none;transition:border-color .18s;min-width:200px}
+.ctrl-input:focus{border-color:var(--sakura);background:#fff}
+.ctrl-select{padding:.44rem .75rem;border:1.5px solid var(--border);border-radius:50px;
+  font-family:'Noto Sans',sans-serif;font-size:.78rem;color:var(--ink);
+  background:var(--hanji);outline:none;cursor:pointer;transition:border-color .18s}
+.ctrl-select:focus{border-color:var(--sakura)}
+
+/* ── SEMANAS LIST ──────────────────────────────────────────────────── */
+#semanasList{display:flex;flex-direction:column;gap:.85rem}
+.semana-card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);
+  border:1px solid var(--border);padding:1.2rem 1.4rem;transition:box-shadow .18s}
+.semana-card.s-active{border-left:4px solid var(--sakura);background:#fffbf9}
+.semana-card:hover{box-shadow:var(--sh-h)}
+.sc-header{display:flex;align-items:flex-start;justify-content:space-between;gap:.7rem;flex-wrap:wrap}
+.sc-nombre{font-family:'Noto Serif',serif;font-size:.95rem;color:var(--ink);font-weight:600}
+.sc-sub{font-size:.72rem;color:#aaa;margin-top:.2rem}
+.badge-alaire{background:var(--sakura);color:white;font-size:.64rem;font-weight:700;
+  padding:.22rem .65rem;border-radius:20px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.badge-hist{background:var(--hanji2);color:#bbb;font-size:.64rem;font-weight:700;
+  padding:.22rem .65rem;border-radius:20px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.sc-stats{display:flex;gap:1.5rem;margin:.9rem 0 .7rem}
+.sc-stat{display:flex;flex-direction:column;gap:.12rem}
+.sv{font-size:1.3rem;font-weight:700;color:var(--ink)}
+.sl{font-size:.64rem;color:#aaa;text-transform:uppercase;letter-spacing:.07em}
+.sc-actions{display:flex;gap:.5rem;flex-wrap:wrap}
+.btn-alaire{padding:.48rem 1.1rem;background:var(--ink);color:var(--hanji);border:none;
+  border-radius:50px;font-family:'Noto Sans',sans-serif;font-size:.74rem;font-weight:700;
+  cursor:pointer;text-transform:uppercase;letter-spacing:.04em;transition:background .18s}
+.btn-alaire:hover{background:var(--sakura)}
+
+/* ── SEMANA GROUP ROW ──────────────────────────────────────────────── */
+.semana-group-row td{background:rgba(28,43,74,.04);padding:.5rem .9rem;
+  border-bottom:2px solid var(--border);font-size:.72rem}
+.sg-nombre{font-family:'Noto Serif',serif;font-weight:600;color:var(--ink);font-size:.82rem}
+
+/* ── TABLE ────────────────────────────────────────────────────────── */
+.table-wrap{overflow-x:auto;border-radius:var(--r);box-shadow:var(--sh)}
+table{width:100%;border-collapse:collapse;background:var(--card);font-size:.78rem}
+table thead{background:var(--ink);color:var(--hanji)}
+table th{padding:.65rem .85rem;font-weight:700;text-align:left;font-size:.64rem;
+  text-transform:uppercase;letter-spacing:.1em;white-space:nowrap}
+table td{padding:.6rem .85rem;border-bottom:1px solid rgba(28,43,74,.05);
+  vertical-align:top;line-height:1.4}
+table tr:last-child td{border-bottom:none}
+table tr:hover td{background:rgba(28,43,74,.02)}
+table tr.row-del td{opacity:.4}
+.ev-row td{border-bottom:1px solid rgba(28,43,74,.04)}
+.ev-titulo-cell{max-width:280px;font-weight:600;color:var(--ink)}
+.ev-dia{font-size:.68rem;font-weight:700;color:#bbb;text-transform:uppercase}
+.ev-id{font-size:.62rem;color:#ddd;font-family:monospace}
+.cell-num{text-align:right;font-weight:600;color:var(--ink)}
+.empty-msg{text-align:center;color:#ddd;font-size:.8rem;padding:2rem 0;font-style:italic}
+
+/* Chips */
+.chip-ev{font-size:.62rem;font-weight:700;padding:.16rem .5rem;border-radius:20px;
+  letter-spacing:.05em;text-transform:uppercase;margin-left:.4rem}
+.chip-live{background:var(--sakura);color:white}
+.chip-hist{background:var(--hanji2);color:#bbb}
+.chip-act{background:#d4f0e4;color:var(--sage)}
+.chip-del{background:#f5d0d8;color:var(--sakura)}
+.chip-tipo{font-size:.64rem;background:rgba(28,43,74,.07);color:var(--ink2);
+  padding:.16rem .48rem;border-radius:12px;font-weight:600;letter-spacing:.04em}
+.chip-walk{background:#fdecd0;color:var(--gold);font-size:.64rem;font-weight:700;
+  padding:.16rem .48rem;border-radius:12px}
+.chip-pre{background:#e8f0d4;color:var(--sage);font-size:.64rem;font-weight:700;
+  padding:.16rem .48rem;border-radius:12px}
+
+.btn-row{font-size:.66rem;background:none;border:1px solid var(--border);
+  border-radius:6px;padding:.2rem .5rem;cursor:pointer;margin:.12rem .06rem 0;
+  color:var(--ink2);font-family:'Noto Sans',sans-serif;font-weight:600;
+  transition:background .14s;white-space:nowrap}
+.btn-row:hover{background:var(--hanji2)}
+.btn-del:hover{background:#fde8ee;border-color:var(--sakura);color:var(--sakura)}
+
+/* Sub-label */
+.sub-label{font-size:.7rem;color:#bbb;margin:.2rem 0 .9rem}
+
+/* ── EVAL ─────────────────────────────────────────────────────────── */
+.eval-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  gap:.85rem;margin-bottom:1.4rem}
+.eval-card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);
+  padding:1rem 1.1rem;text-align:center;border-top:3px solid var(--sakura)}
+.eval-kv{font-size:1.6rem;font-family:'Noto Serif',serif;color:var(--ink);font-weight:600}
+.eval-kl{font-size:.66rem;color:#aaa;margin-top:.12rem;text-transform:uppercase;letter-spacing:.07em}
+.eval-sub{font-size:.62rem;color:#ccc;margin-top:.06rem}
+.eval-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.1rem}
+.eval-block{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:1.1rem 1.2rem}
+.eval-block h4{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:#bbb;margin-bottom:.75rem}
+.rat-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.35rem}
+.rat-lbl{font-size:.72rem;font-weight:700;color:var(--gold);min-width:28px}
+.rat-bar-wrap{flex:1;height:8px;background:var(--hanji2);border-radius:4px;overflow:hidden}
+.rat-bar{height:100%;background:var(--sakura);border-radius:4px;transition:width .3s}
+.rat-cnt{font-size:.7rem;font-weight:600;color:#aaa;min-width:20px;text-align:right}
+.can-row{display:flex;justify-content:space-between;font-size:.76rem;padding:.35rem 0;
+  border-bottom:1px solid var(--border)}
+.can-row:last-child{border-bottom:none}
+.can-lbl{color:#555}
+.can-cnt{font-weight:700;color:var(--ink)}
+
+/* ── MODAL EVENTO ─────────────────────────────────────────────────── */
+#evModal{position:fixed;inset:0;background:rgba(14,20,40,.72);
+  backdrop-filter:blur(5px);align-items:center;justify-content:center;
+  z-index:500;padding:1rem;display:none}
+.ev-modal-inner{background:var(--card);border-radius:16px;max-width:560px;width:100%;
+  max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(28,43,74,.35)}
+.ev-modal-hdr{background:var(--ink);padding:1.2rem 1.5rem;border-radius:16px 16px 0 0;
+  display:flex;align-items:center;justify-content:space-between}
+.ev-modal-hdr h3{font-family:'Noto Serif',serif;color:var(--hanji);font-size:.95rem}
+.ev-modal-hdr button{background:rgba(255,255,255,.1);border:none;color:var(--hanji);
+  width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:1rem;transition:background .15s}
+.ev-modal-hdr button:hover{background:rgba(255,255,255,.22)}
+.ev-modal-body{padding:1.4rem}
+.fg{margin-bottom:.85rem}
+.fg label{display:block;font-size:.68rem;font-weight:700;color:#aaa;
+  margin-bottom:.28rem;text-transform:uppercase;letter-spacing:.08em}
+.fg input,.fg select,.fg textarea{width:100%;padding:.58rem .85rem;
+  border:1.5px solid var(--border);border-radius:10px;font-family:'Noto Sans',sans-serif;
+  font-size:.87rem;color:var(--ink);background:var(--hanji);transition:border-color .18s;outline:none}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--sakura);background:#fff}
+.fg textarea{resize:vertical;min-height:64px}
+.fg input[readonly]{background:#f4f4f4;color:#aaa}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.8rem}
+.fhint{font-size:.64rem;color:#ccc;margin-top:.18rem}
+.btn-ev-save{width:100%;padding:.72rem;background:var(--ink);color:var(--hanji);
+  border:none;border-radius:10px;font-family:'Noto Sans',sans-serif;font-size:.88rem;
+  font-weight:700;cursor:pointer;transition:background .18s;text-transform:uppercase;
+  letter-spacing:.05em;margin-top:.5rem}
+.btn-ev-save:hover{background:var(--sakura)}
+.btn-ev-save:disabled{background:#ccc;cursor:not-allowed}
+.modal-sep{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--sakura);margin:.85rem 0 .5rem;padding-top:.75rem;border-top:1px solid var(--hanji2)}
+
+/* ── TOAST ────────────────────────────────────────────────────────── */
+#toast{position:fixed;bottom:2rem;right:2rem;background:var(--ink);color:var(--hanji);
+  padding:.75rem 1.3rem;border-radius:50px;font-size:.8rem;font-weight:600;
+  box-shadow:0 8px 24px rgba(28,43,74,.25);opacity:0;pointer-events:none;
+  transition:opacity .3s;z-index:9999;border-left:4px solid var(--sakura)}
+#toast.show{opacity:1}
+
+/* ── RESPONSIVE ───────────────────────────────────────────────────── */
+@media(max-width:820px){
+  .sidebar{width:180px}
+  .kpi-row{padding:1rem;grid-template-columns:repeat(2,1fr)}
+  .section{padding:0 1rem 2rem}
+}
+@media(max-width:600px){
+  .sidebar{display:none}
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .frow,.frow3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">Monitor &middot; Semana Internacional de Corea</div>
+    <div class="login-sub">Universidad El Bosque &middot; ARI 2026-2</div>
+    <input type="text"     id="loginUser" placeholder="Usuario" autocomplete="username">
+    <input type="password" id="loginPass" placeholder="Contrase&ntilde;a" autocomplete="current-password">
+    <button onclick="doLogin()">Ingresar</button>
+    <div class="login-msg" id="loginMsg"></div>
+  </div>
+</div>
+
+<div id="spinner"></div>
+<div id="loadErrorBanner" style="display:none;background:#fde8ee;color:#c8455a;padding:.65rem 2rem;font-size:.8rem;font-weight:600;border-bottom:1px solid #f5c0c8;position:sticky;top:0;z-index:100"></div>
+
+<!-- APP -->
+<div id="appShell" style="display:none">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-eyebrow">Monitor ARI</div>
+      <div class="sb-title">Semana Internacional<br>de Corea</div>
+      <div class="sb-sub">UEB 2026-2 &nbsp;&middot;&nbsp; 29 sep &ndash; 2 oct</div>
+    </div>
+    <div class="sb-divider"></div>
+    <button class="nav-tab active" data-tab="semanas" onclick="switchTab('semanas')">
+      <span class="nav-icon">&#127758;</span> Semanas
+    </button>
+    <button class="nav-tab" data-tab="eventos" onclick="switchTab('eventos')">
+      <span class="nav-icon">&#128197;</span> Eventos
+    </button>
+    <button class="nav-tab" data-tab="asistentes" onclick="switchTab('asistentes')">
+      <span class="nav-icon">&#128101;</span> Asistentes
+    </button>
+    <button class="nav-tab" data-tab="evaluacion" onclick="switchTab('evaluacion')">
+      <span class="nav-icon">&#9733;</span> Evaluaci&oacute;n
+    </button>
+    <div class="sb-spacer"></div>
+    <div class="sb-divider"></div>
+    <div class="sb-footer">
+      <span>ARI &middot; UEB</span>
+      <button class="btn-logout" onclick="doLogout()">Salir</button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <h1>Panel de seguimiento &mdash; Semana Internacional de Corea 2026</h1>
+      <div class="topbar-actions">
+        <button class="top-btn" onclick="csvGeneral()">&#8681; CSV General</button>
+        <button class="top-btn primary" onclick="openNewEvento()">+ Nuevo evento</button>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-row">
+      <div class="kpi-card" id="kTotalEventos">   <div class="kv">–</div><div class="kl">Eventos al aire</div></div>
+      <div class="kpi-card" id="kTotalInscritos">  <div class="kv">–</div><div class="kl">Inscripciones</div></div>
+      <div class="kpi-card" id="kTotalAsistentes"><div class="kv">–</div><div class="kl">Asistencias</div></div>
+      <div class="kpi-card" id="kPersonasUnicas">  <div class="kv">–</div><div class="kl">Personas únicas</div></div>
+      <div class="kpi-card" id="kHistoricas">      <div class="kv">–</div><div class="kl">Ediciones</div></div>
+    </div>
+
+    <!-- ── TAB: SEMANAS ──────────────────────────────────────────── -->
+    <div class="section tab-section" data-tab="semanas">
+      <div class="section-header">
+        <h2>Ediciones de la Semana Internacional</h2>
+        <div class="section-controls">
+          <span style="font-size:.74rem;color:#aaa">La edici&oacute;n marcada <strong>"Al aire"</strong> es la que ve el p&uacute;blico en la agenda</span>
+        </div>
+      </div>
+      <div id="semanasList">
+        <p class="empty-msg">Cargando semanas...</p>
+      </div>
+    </div>
+
+    <!-- ── TAB: EVENTOS ──────────────────────────────────────────── -->
+    <div class="section tab-section" data-tab="eventos" style="display:none">
+      <div class="section-header">
+        <h2>Eventos</h2>
+        <div class="section-controls">
+          <input class="ctrl-input" id="searchEvInput" placeholder="Buscar evento..."
+            oninput="searchEvStr=this.value.toLowerCase();renderEventos()" />
+          <select class="ctrl-select" id="filterSemSelect"
+            onchange="filterSemStr=this.value;renderEventos()">
+            <option value="">Todas las ediciones</option>
+            <!-- populated by JS -->
+          </select>
+          <button class="top-btn" onclick="downloadEventTemplate()" title="Descargar plantilla CSV">&#8681; Plantilla CSV</button>
+          <label class="top-btn" style="cursor:pointer;display:inline-block" title="Importar eventos desde CSV">
+            &#8679; Importar CSV
+            <input type="file" id="importCSVInput" accept=".csv,.txt"
+              style="display:none" onchange="importEventosCSV(this)">
+          </label>
+          <button class="top-btn primary" onclick="openNewEvento()">+ Nuevo</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>D&iacute;a / ID</th>
+              <th>T&iacute;tulo</th>
+              <th>Lugar</th>
+              <th>Tipo</th>
+              <th>Inscritos</th>
+              <th>Asistentes</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaEventos">
+            <tr><td colspan="7" class="empty-msg">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── TAB: ASISTENTES ──────────────────────────────────────── -->
+    <div class="section tab-section" data-tab="asistentes" style="display:none">
+      <div class="section-header">
+        <h2>Participantes</h2>
+        <div class="section-controls">
+          <div style="display:flex;background:rgba(28,43,74,.07);border-radius:50px;padding:.25rem;gap:.2rem">
+            <button id="btnTabAsis" onclick="switchAsisView('asistentes')"
+              style="border:none;border-radius:50px;padding:.38rem .95rem;font-family:'Noto Sans',sans-serif;font-size:.74rem;font-weight:700;cursor:pointer;background:var(--ink);color:var(--hanji)">Asistentes</button>
+            <button id="btnTabInsc" onclick="switchAsisView('inscritos')"
+              style="border:none;border-radius:50px;padding:.38rem .95rem;font-family:'Noto Sans',sans-serif;font-size:.74rem;font-weight:700;cursor:pointer;background:transparent;color:var(--ink)">Inscritos</button>
+          </div>
+          <input class="ctrl-input" id="filterAsisTxtInput" placeholder="Buscar nombre o documento..."
+            oninput="filterAsisTerm=this.value.toLowerCase();renderCurrentAsisView()" style="min-width:170px" />
+          <select class="ctrl-select" id="filterSemAsis" onchange="filterSemana=this.value;renderCurrentAsisView()">
+            <option value="">Todas las ediciones</option>
+          </select>
+          <select class="ctrl-select" id="filterDiaAsis" onchange="filterDia=this.value;renderCurrentAsisView()">
+            <option value="">Todos los d&iacute;as</option>
+            <option value="d0">Lunes 28 sep</option>
+            <option value="d1">Martes 29 sep</option>
+            <option value="d2">Mi&eacute;rc. 30 sep</option>
+            <option value="d3">Jueves 1 oct</option>
+            <option value="d4">Viernes 2 oct</option>
+            <option value="2026-10-14">Mi&eacute;rc. 14 oct</option>
+            <option value="2026-10-16">Viernes 16 oct</option>
+          </select>
+          <button id="btnCsvAsis" class="top-btn" onclick="csvCurrentAsisView()">&#8681; CSV</button>
+        </div>
+      </div>
+      <div class="sub-label" id="asisTotalLbl"></div>
+      <div id="tableAsistentesWrap" class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Evento / D&iacute;a</th><th>Nombre</th><th>Documento</th>
+            <th>Unidad acad&eacute;mica</th><th>Tipo</th><th>Ingreso</th><th>Cal.</th><th>Canal</th>
+          </tr></thead>
+          <tbody id="tablaAsistentes"><tr><td colspan="8" class="empty-msg">Cargando...</td></tr></tbody>
+        </table>
+      </div>
+      <div id="tableInscritosWrap" class="table-wrap" style="display:none">
+        <table>
+          <thead><tr>
+            <th>Evento / D&iacute;a</th><th>Nombre</th><th>Documento</th>
+            <th>Tipo doc.</th><th>Email</th><th>Unidad acad&eacute;mica</th><th>Tipo</th><th>Programa</th>
+          </tr></thead>
+          <tbody id="tablaInscritos"><tr><td colspan="8" class="empty-msg">Sin inscritos todav&iacute;a.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── TAB: EVALUACIÓN ──────────────────────────────────────── -->
+    <div class="section tab-section" data-tab="evaluacion" style="display:none">
+      <div class="section-header">
+        <h2>Evaluaci&oacute;n</h2>
+        <div class="section-controls">
+          <select class="ctrl-select" id="filterSemEvalSel"
+            onchange="filterSemEvalStr=this.value;renderEval()">
+            <option value="">Todas las ediciones</option>
+          </select>
+        </div>
+      </div>
+      <div id="evalSummary">
+        <p class="empty-msg">Sin evaluaciones registradas.</p>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /appShell -->
+
+<!-- MODAL EVENTO -->
+<div id="evModal">
+  <div class="ev-modal-inner">
+    <div class="ev-modal-hdr">
+      <h3 id="evModalTitle">Nuevo evento</h3>
+      <button onclick="closeEvModal()">&#10005;</button>
+    </div>
+    <div class="ev-modal-body">
+      <div class="frow">
+        <div class="fg">
+          <label>ID del evento *</label>
+          <input type="text" id="eId" placeholder="ej: c1e1" />
+          <div class="fhint">Usa c1e1, c2e1, etc. para Corea</div>
+        </div>
+        <div class="fg">
+          <label>Semana</label>
+          <select id="eSemana">
+            <option value="">Selecciona...</option>
+            <option value="turkiye-2026">Türkiye 2026</option>
+            <option value="corea-2026" selected>Corea 2026</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label>T&iacute;tulo *</label><input type="text" id="eTitulo" placeholder="T&iacute;tulo del evento" /></div>
+      <div class="fg"><label>Descripci&oacute;n</label><textarea id="eDesc" placeholder="Descripci&oacute;n..."></textarea></div>
+      <div class="frow">
+        <div class="fg">
+          <label>D&iacute;a (c&oacute;digo)</label>
+          <select id="eDia">
+            <option value="">Selecciona...</option>
+            <optgroup label="Semana principal">
+              <option value="d0">Lunes 28 de septiembre</option>
+              <option value="d1">Martes 29 de septiembre</option>
+              <option value="d2">Mi&#233;rcoles 30 de septiembre</option>
+              <option value="d3">Jueves 1 de octubre</option>
+              <option value="d4">Viernes 2 de octubre</option>
+            </optgroup>
+            <optgroup label="Agenda extendida">
+              <option value="2026-10-14">Mi&#233;rcoles 14 de octubre</option>
+              <option value="2026-10-16">Viernes 16 de octubre</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Otro d&iacute;a (texto libre)</label>
+          <input type="text" id="eDia2" placeholder="ej: d5, d6..." />
+          <div class="fhint">Deja en blanco si ya seleccionaste arriba</div>
+        </div>
+      </div>
+      <div class="fg"><label>Lugar</label><input type="text" id="eLugar" placeholder="Auditorio, sala..." /></div>
+      <div class="modal-sep">Horario de visualizaci&oacute;n</div>
+      <div class="frow">
+        <div class="fg">
+          <label>Hora inicio (visualizaci&oacute;n)</label>
+          <select id="eHI" onchange="onDisplayTimeChange('start')">
+            <option value="">Sin horario</option>
+            <option value="Por definir">Por definir</option>
+            <option value="Toda la jornada">Toda la jornada</option>
+            <option value="6:00 a.m.">6:00 a.m.</option>
+            <option value="6:30 a.m.">6:30 a.m.</option>
+            <option value="7:00 a.m.">7:00 a.m.</option>
+            <option value="7:30 a.m.">7:30 a.m.</option>
+            <option value="8:00 a.m.">8:00 a.m.</option>
+            <option value="8:30 a.m.">8:30 a.m.</option>
+            <option value="9:00 a.m.">9:00 a.m.</option>
+            <option value="9:30 a.m.">9:30 a.m.</option>
+            <option value="10:00 a.m.">10:00 a.m.</option>
+            <option value="10:30 a.m.">10:30 a.m.</option>
+            <option value="11:00 a.m.">11:00 a.m.</option>
+            <option value="11:30 a.m.">11:30 a.m.</option>
+            <option value="12:00 p.m.">12:00 p.m.</option>
+            <option value="12:30 p.m.">12:30 p.m.</option>
+            <option value="1:00 p.m.">1:00 p.m.</option>
+            <option value="1:30 p.m.">1:30 p.m.</option>
+            <option value="2:00 p.m.">2:00 p.m.</option>
+            <option value="2:30 p.m.">2:30 p.m.</option>
+            <option value="3:00 p.m.">3:00 p.m.</option>
+            <option value="3:30 p.m.">3:30 p.m.</option>
+            <option value="4:00 p.m.">4:00 p.m.</option>
+            <option value="4:30 p.m.">4:30 p.m.</option>
+            <option value="5:00 p.m.">5:00 p.m.</option>
+            <option value="5:30 p.m.">5:30 p.m.</option>
+            <option value="6:00 p.m.">6:00 p.m.</option>
+            <option value="6:30 p.m.">6:30 p.m.</option>
+            <option value="7:00 p.m.">7:00 p.m.</option>
+            <option value="7:30 p.m.">7:30 p.m.</option>
+            <option value="8:00 p.m.">8:00 p.m.</option>
+            <option value="8:30 p.m.">8:30 p.m.</option>
+            <option value="9:00 p.m.">9:00 p.m.</option>
+            <option value="9:30 p.m.">9:30 p.m.</option>
+            <option value="10:00 p.m.">10:00 p.m.</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Hora fin (visualizaci&oacute;n)</label>
+          <select id="eHF" onchange="onDisplayTimeChange('end')">
+            <option value="">Sin horario</option>
+            <option value="Por definir">Por definir</option>
+            <option value="Toda la jornada">Toda la jornada</option>
+            <option value="6:00 a.m.">6:00 a.m.</option>
+            <option value="6:30 a.m.">6:30 a.m.</option>
+            <option value="7:00 a.m.">7:00 a.m.</option>
+            <option value="7:30 a.m.">7:30 a.m.</option>
+            <option value="8:00 a.m.">8:00 a.m.</option>
+            <option value="8:30 a.m.">8:30 a.m.</option>
+            <option value="9:00 a.m.">9:00 a.m.</option>
+            <option value="9:30 a.m.">9:30 a.m.</option>
+            <option value="10:00 a.m.">10:00 a.m.</option>
+            <option value="10:30 a.m.">10:30 a.m.</option>
+            <option value="11:00 a.m.">11:00 a.m.</option>
+            <option value="11:30 a.m.">11:30 a.m.</option>
+            <option value="12:00 p.m.">12:00 p.m.</option>
+            <option value="12:30 p.m.">12:30 p.m.</option>
+            <option value="1:00 p.m.">1:00 p.m.</option>
+            <option value="1:30 p.m.">1:30 p.m.</option>
+            <option value="2:00 p.m.">2:00 p.m.</option>
+            <option value="2:30 p.m.">2:30 p.m.</option>
+            <option value="3:00 p.m.">3:00 p.m.</option>
+            <option value="3:30 p.m.">3:30 p.m.</option>
+            <option value="4:00 p.m.">4:00 p.m.</option>
+            <option value="4:30 p.m.">4:30 p.m.</option>
+            <option value="5:00 p.m.">5:00 p.m.</option>
+            <option value="5:30 p.m.">5:30 p.m.</option>
+            <option value="6:00 p.m.">6:00 p.m.</option>
+            <option value="6:30 p.m.">6:30 p.m.</option>
+            <option value="7:00 p.m.">7:00 p.m.</option>
+            <option value="7:30 p.m.">7:30 p.m.</option>
+            <option value="8:00 p.m.">8:00 p.m.</option>
+            <option value="8:30 p.m.">8:30 p.m.</option>
+            <option value="9:00 p.m.">9:00 p.m.</option>
+            <option value="9:30 p.m.">9:30 p.m.</option>
+            <option value="10:00 p.m.">10:00 p.m.</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-sep">Ventana de asistencia (Bogot&aacute;)</div>
+      <div class="frow">
+        <div class="fg">
+          <label>Hora inicio asistencia</label>
+          <select id="eHIh">
+            <option value="">Sin hora</option>
+            <option value="06:00">6:00 a.m.</option><option value="07:00">7:00 a.m.</option>
+            <option value="08:00">8:00 a.m.</option><option value="09:00">9:00 a.m.</option>
+            <option value="10:00">10:00 a.m.</option><option value="11:00">11:00 a.m.</option>
+            <option value="12:00">12:00 m.</option><option value="13:00">1:00 p.m.</option>
+            <option value="14:00">2:00 p.m.</option><option value="15:00">3:00 p.m.</option>
+            <option value="16:00">4:00 p.m.</option><option value="17:00">5:00 p.m.</option>
+            <option value="18:00">6:00 p.m.</option><option value="19:00">7:00 p.m.</option>
+            <option value="20:00">8:00 p.m.</option><option value="21:00">9:00 p.m.</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Hora fin asistencia</label>
+          <select id="eHFh">
+            <option value="">Sin hora</option>
+            <option value="06:00">6:00 a.m.</option><option value="07:00">7:00 a.m.</option>
+            <option value="08:00">8:00 a.m.</option><option value="09:00">9:00 a.m.</option>
+            <option value="10:00">10:00 a.m.</option><option value="11:00">11:00 a.m.</option>
+            <option value="12:00">12:00 m.</option><option value="13:00">1:00 p.m.</option>
+            <option value="14:00">2:00 p.m.</option><option value="15:00">3:00 p.m.</option>
+            <option value="16:00">4:00 p.m.</option><option value="17:00">5:00 p.m.</option>
+            <option value="18:00">6:00 p.m.</option><option value="19:00">7:00 p.m.</option>
+            <option value="20:00">8:00 p.m.</option><option value="21:00">9:00 p.m.</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-sep">Detalles</div>
+      <div class="frow">
+        <div class="fg">
+          <label>Tipo</label>
+          <select id="eTipo">
+            <option value="public">P&uacute;blico</option>
+            <option value="english">English</option>
+            <option value="limited">Cupos limitados</option>
+            <option value="private">Privado</option>
+            <option value="bazar">Bazar</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Estado</label>
+          <select id="eEstado">
+            <option value="confirmado">Confirmado</option>
+            <option value="aplazado">Aplazado</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label>Nota de estado (visible en agenda)</label><input type="text" id="eNota" placeholder="Ej: reprogramado para el 2 de oct..." /></div>
+      <div class="fg"><label>Invitados</label><textarea id="eInv" placeholder="Ponentes, invitados..."></textarea></div>
+      <div class="fg"><label>Organiza / Facultad</label><input type="text" id="eFac" placeholder="Unidad organizadora" /></div>
+      <div class="frow">
+        <div class="fg"><label>Orden</label><input type="number" id="eOrden" value="0" min="0" /></div>
+        <div class="fg"><label>URL Google Maps</label><input type="text" id="eMaps" placeholder="https://maps.google.com/..." /></div>
+      <div class="fg" style="margin-top:.3rem">
+        <label style="display:flex;align-items:center;gap:.55rem;cursor:pointer;
+          font-size:.82rem;font-weight:400;text-transform:none;letter-spacing:0;color:#555">
+          <input type="checkbox" id="eCuposCerrados" style="accent-color:var(--sakura);width:16px;height:16px">
+          <span>Cupos cerrados <span style="color:#aaa;font-size:.74rem">(bloquea registros, no afecta asistencia)</span></span>
+        </label>
+      </div>
+      </div>
+      <button class="btn-ev-save" onclick="saveEvento()">Guardar evento</button>
+    </div>
+  </div>
+</div>
+
+<!-- IMPORT MODAL -->
+<div id="importModal" style="display:none;position:fixed;inset:0;background:rgba(14,20,40,.72);
+  backdrop-filter:blur(5px);align-items:flex-start;justify-content:center;
+  z-index:600;padding:2rem 1rem;overflow-y:auto">
+  <div style="background:var(--card);border-radius:16px;max-width:700px;width:100%;
+    box-shadow:0 24px 64px rgba(28,43,74,.35);margin:auto">
+    <div style="background:var(--ink);padding:1.2rem 1.5rem;border-radius:16px 16px 0 0;
+      display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:.68rem;font-weight:700;letter-spacing:.15em;
+          text-transform:uppercase;color:var(--sakura);margin-bottom:.18rem">Importación masiva</div>
+        <div id="importModalTitle" style="font-family:'Noto Serif',serif;
+          color:var(--hanji);font-size:.95rem">Vista previa del CSV</div>
+      </div>
+      <button onclick="closeImportModal()"
+        style="background:rgba(255,255,255,.12);border:none;color:var(--hanji);
+        width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:1rem">&#10005;</button>
+    </div>
+    <div style="padding:1.2rem 1.4rem">
+      <div id="importPreviewMsg" style="font-size:.8rem;color:#888;
+        line-height:1.55;margin-bottom:.9rem"></div>
+      <div style="overflow-x:auto;border-radius:8px;border:1px solid var(--border)">
+        <table style="width:100%;border-collapse:collapse;font-size:.72rem;background:var(--card)">
+          <thead id="importPreviewHead"
+            style="background:var(--ink);color:var(--hanji)"></thead>
+          <tbody id="importPreviewBody"></tbody>
+        </table>
+      </div>
+      <div id="importResult" style="display:none;margin-top:.9rem;font-size:.8rem;
+        font-weight:600;padding:.6rem .9rem;border-radius:8px"></div>
+    </div>
+    <div style="padding:.9rem 1.4rem 1.2rem;border-top:1px solid var(--border);
+      display:flex;gap:.7rem;justify-content:flex-end">
+      <button onclick="closeImportModal()"
+        style="padding:.55rem 1.2rem;border:1.5px solid var(--border);border-radius:50px;
+        background:none;font-family:'Noto Sans',sans-serif;font-size:.8rem;
+        font-weight:700;cursor:pointer;color:var(--ink)">Cancelar</button>
+      <button id="importConfirmBtn" onclick="confirmImport()"
+        style="padding:.55rem 1.3rem;background:var(--sakura);color:white;border:none;
+        border-radius:50px;font-family:'Noto Sans',sans-serif;font-size:.8rem;
+        font-weight:700;cursor:pointer;transition:background .18s">
+        Importar eventos</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- EVENT DETAIL MODAL -->
+<div id="evDetailModal" style="display:none;position:fixed;inset:0;background:rgba(14,20,40,.72);
+  backdrop-filter:blur(5px);align-items:flex-start;justify-content:center;
+  z-index:600;padding:1.5rem 1rem;overflow-y:auto">
+  <div style="background:var(--card);border-radius:16px;max-width:760px;width:100%;
+    box-shadow:0 24px 64px rgba(28,43,74,.35);margin:auto">
+    <div style="background:var(--ink);padding:1.2rem 1.5rem;border-radius:16px 16px 0 0;
+      display:flex;align-items:flex-start;justify-content:space-between;gap:.7rem">
+      <div>
+        <div id="evDetailDia" style="font-size:.68rem;font-weight:700;letter-spacing:.15em;
+          text-transform:uppercase;color:var(--sakura);margin-bottom:.18rem"></div>
+        <div id="evDetailTitle" style="font-family:'Noto Serif',serif;color:var(--hanji);font-size:1rem;line-height:1.3"></div>
+      </div>
+      <button onclick="closeEvDetailModal()"
+        style="background:rgba(255,255,255,.12);border:none;color:var(--hanji);
+        width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:1rem;flex-shrink:0">&#10005;</button>
+    </div>
+    <div id="evDetailBody" style="padding:1.3rem 1.4rem"></div>
+    <div style="padding:.8rem 1.4rem 1.1rem;border-top:1px solid var(--border);display:flex;gap:.6rem;justify-content:flex-end">
+      <button onclick="closeEvDetailModal()"
+        style="padding:.52rem 1.1rem;border:1.5px solid var(--border);border-radius:50px;
+        background:none;font-family:'Noto Sans',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;color:var(--ink)">Cerrar</button>
+      <button id="evDetailCsvBtn"
+        style="padding:.52rem 1.2rem;background:var(--ink);color:var(--hanji);border:none;
+        border-radius:50px;font-family:'Noto Sans',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer">&#8681; CSV este evento</button>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+'use strict';
+var SUPABASE_URL = 'https://glbyimzmpotuzntvgjut.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_tN2lhvrYn7vjOxqJbItKXg__M5sKu8K';
+var db = null;
+function initDB(){ db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); }
+
+// ── AUTH ─────────────────────────────────────────────────────────────
+var AUTH_KEY = 'si_corea_monitor_auth';
+function isLoggedIn(){ return sessionStorage.getItem(AUTH_KEY) === '1'; }
+function doLogin(){
+  var u = document.getElementById('loginUser').value.trim();
+  var p = document.getElementById('loginPass').value;
+  var m = document.getElementById('loginMsg');
+  if (u === 'ARI' && p === '1234'){
+    sessionStorage.setItem(AUTH_KEY,'1');
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appShell').style.display    = '';
+    initDB();
+    loadAll();
+  } else { m.textContent = 'Credenciales incorrectas.'; }
+}
+function doLogout(){
+  sessionStorage.removeItem(AUTH_KEY);
+  location.reload();
+}
+
+// ── STATE ─────────────────────────────────────────────────────────────
+var semanas     = [];
+var eventos     = [];
+var registros   = [];
+var asistencias = [];
+var activeTab   = 'semanas';
+var searchEvStr = '';
+var filterDia   = '';
+var filterSemStr= '';
+var filterSemana    = '';
+var filterSemEvalStr= '';
+var filterAsisTerm  = '';
+var asisView        = 'asistentes';
+var editEventId = null;
+
+// ── HELPERS ───────────────────────────────────────────────────────────
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtDate(iso){ if(!iso)return'–'; var d=new Date(iso); return d.toLocaleDateString('es-CO',{timeZone:'America/Bogota',day:'numeric',month:'short',year:'numeric'}); }
+function fmtTime(iso){ if(!iso)return'–'; var d=new Date(iso); return d.toLocaleTimeString('es-CO',{timeZone:'America/Bogota',hour:'2-digit',minute:'2-digit',hour12:true}); }
+
+var DAY_LABELS = { d0:'Lunes 28 sep', d1:'Martes 29 sep', d2:'Mi\u00e9rc. 30 sep', d3:'Jueves 1 oct', d4:'Viernes 2 oct' };
+function getDayLabel(dia){ return DAY_LABELS[dia] || dia || '–'; }
+
+function getSemanaLabel(semanaId){
+  var s = semanas.find(function(s){ return s.id === semanaId; });
+  return s ? s.nombre : (semanaId || 'Sin semana');
+}
+function getSemana(id){ return semanas.find(function(s){ return s.id === id; }); }
+
+// ── bogToUTC: dia key or YYYY-MM-DD + HH:MM → ISO UTC ─────────────────
+var dateMapFull = {
+  d0:'2026-09-28', d1:'2026-09-29', d2:'2026-09-30', d3:'2026-10-01', d4:'2026-10-02'
+};
+function bogToUTC(diaOrDate, hhmm){
+  var dateStr = dateMapFull[diaOrDate] || diaOrDate;
+  var parts   = String(hhmm||'').split(':');
+  var h = parseInt(parts[0]||0,10), m = parseInt(parts[1]||0,10);
+  var bogMs   = new Date(dateStr+'T00:00:00Z').getTime() + (h*60+m)*60000;
+  var utcMs   = bogMs + 5*3600000;
+  return new Date(utcMs).toISOString();
+}
+function utcToBogHHMM(isoStr){
+  if(!isoStr)return'';
+  var d = new Date(new Date(isoStr).getTime() - 5*3600000);
+  var h = d.getUTCHours(), min = d.getUTCMinutes();
+  return (h<10?'0':'')+h+':'+(min<10?'0':'')+min;
+}
+
+// ── LOAD ALL ──────────────────────────────────────────────────────────
+function showLoadError(msg){
+  var el=document.getElementById('loadErrorBanner');
+  if(el){el.textContent=msg;el.style.display='';}
+}
+function loadAll(){
+  showSpin(true);
+  Promise.all([
+    db.from('semanas').select('*').order('fecha_inicio',{ascending:false}),
+    db.from('eventos').select('*').order('semana_id').order('dia').order('orden'),
+    db.from('registros').select('*'),
+    db.from('asistencias').select('*')
+  ]).then(function(results){
+    showSpin(false);
+    var errs=results.map(function(r,i){return r.error?('[tabla '+i+'] '+r.error.message):null;}).filter(Boolean);
+    if(errs.length) showLoadError('Error Supabase: '+errs.join(' | ')+' — Verifica que el SQL v3 haya sido ejecutado.');
+    if(results[0].data) semanas     = results[0].data;
+    if(results[1].data) eventos     = results[1].data;
+    if(results[2].data) registros   = results[2].data;
+    if(results[3].data) asistencias = results[3].data;
+    renderAll();
+    populateSemanaSelects();
+    subscribeAll();
+  }).catch(function(e){
+    showSpin(false);
+    showLoadError('Error de conexión: '+(e.message||String(e))+' — Recarga la página.');
+    console.error('[Monitor Korea] loadAll',e);
+  });
+}
+
+function showSpin(on){
+  var el = document.getElementById('spinner');
+  if(el) el.style.display = on ? '' : 'none';
+}
+
+function renderAll(){
+  updateKPIs();
+  renderSemanas();
+  renderEventos();
+  renderAsistentes();
+  renderEval();
+}
+
+function populateSemanaSelects(){
+  var sels=['filterSemSelect','filterSemAsis','filterSemEvalSel'];
+  sels.forEach(function(selId){
+    var el=document.getElementById(selId); if(!el) return;
+    // Keep first option
+    while(el.options.length>1) el.remove(1);
+    semanas.forEach(function(s){
+      var opt=document.createElement('option');
+      opt.value=s.id; opt.textContent=s.nombre; el.appendChild(opt);
+    });
+  });
+}
+function subscribeAll(){
+  db.channel('monitor-korea')
+    .on('postgres_changes',{event:'*',schema:'public',table:'eventos'},    function(){ reloadTable('eventos');    })
+    .on('postgres_changes',{event:'*',schema:'public',table:'semanas'},    function(){ reloadTable('semanas');    })
+    .on('postgres_changes',{event:'*',schema:'public',table:'registros'},  function(){ reloadTable('registros');  })
+    .on('postgres_changes',{event:'*',schema:'public',table:'asistencias'},function(){ reloadTable('asistencias')})
+    .subscribe();
+}
+function reloadTable(t){
+  db.from(t).select('*').then(function(r){
+    if(!r.error){
+      if(t==='semanas')     semanas     = r.data;
+      if(t==='eventos')     eventos     = r.data.sort(function(a,b){ return (a.orden||0)-(b.orden||0); });
+      if(t==='registros')   registros   = r.data;
+      if(t==='asistencias') asistencias = r.data;
+      renderAll();
+    }
+  });
+}
+
+// ── KPIs ──────────────────────────────────────────────────────────────
+function updateKPIs(){
+  var actSem  = semanas.find(function(s){ return s.al_aire; });
+  var actEvs  = actSem ? eventos.filter(function(e){ return e.semana_id===actSem.id && e.activo; }) : [];
+  var actEIds = actEvs.map(function(e){ return e.id; });
+  var asis    = asistencias.filter(function(a){ return actEIds.indexOf(a.evento_id)!==-1; });
+  var regs    = registros.filter(function(r){ return actEIds.indexOf(r.evento_id)!==-1; });
+  var uniqPax = {};
+  asis.forEach(function(a){ uniqPax[a.doc_id]=1; });
+  var kpis=[
+    {id:'kTotalEventos',   v:actEvs.length,                label:actSem?actSem.nombre:'Sin semana activa'},
+    {id:'kTotalInscritos', v:regs.length,                  label:'Inscripciones'},
+    {id:'kTotalAsistentes',v:asis.length,                  label:'Registros de asistencia'},
+    {id:'kPersonasUnicas', v:Object.keys(uniqPax).length,  label:'Personas únicas'},
+  ];
+  kpis.forEach(function(k){
+    var el=document.getElementById(k.id);
+    if(el){ el.querySelector('.kv').textContent=k.v; el.querySelector('.kl').textContent=k.label; }
+  });
+  // Semanas counter
+  var histEl = document.getElementById('kHistoricas');
+  if(histEl){ histEl.querySelector('.kv').textContent=semanas.length; histEl.querySelector('.kl').textContent='Ediciones registradas'; }
+}
+
+// ── SEMANAS TAB ───────────────────────────────────────────────────────
+function renderSemanas(){
+  var el = document.getElementById('semanasList'); if(!el) return;
+  if(!semanas.length){ el.innerHTML='<p class="empty-msg">No hay ediciones registradas.</p>'; return; }
+  var h = '';
+  semanas.forEach(function(sem){
+    var evTotal = eventos.filter(function(e){ return e.semana_id===sem.id&&e.activo; }).length;
+    var asisTotal= asistencias.filter(function(a){
+      var ev=eventos.find(function(e){ return e.id===a.evento_id; });
+      return ev&&ev.semana_id===sem.id;
+    }).length;
+    var badge = sem.al_aire
+      ? '<span class="badge-alaire">&#9679; Al aire</span>'
+      : '<span class="badge-hist">Hist\u00f3rico</span>';
+    var fecha = '';
+    if(sem.fecha_inicio) fecha = fmtDate(sem.fecha_inicio+' 00:00:00') + ' – ' + fmtDate(sem.fecha_fin+' 00:00:00');
+    h += '<div class="semana-card'+(sem.al_aire?' s-active':'')+'">'+
+      '<div class="sc-header">'+
+        '<div>'+
+          '<div class="sc-nombre">'+esc(sem.nombre)+'</div>'+
+          '<div class="sc-sub">'+esc(sem.pais||'')+(fecha?' &middot; '+fecha:'')+'</div>'+
+        '</div>'+
+        badge+
+      '</div>'+
+      '<div class="sc-stats">'+
+        '<div class="sc-stat"><span class="sv">'+evTotal+'</span><span class="sl">Eventos activos</span></div>'+
+        '<div class="sc-stat"><span class="sv">'+asisTotal+'</span><span class="sl">Asistencias</span></div>'+
+      '</div>'+
+      '<div class="sc-actions">';
+    if(!sem.al_aire){
+      h += '<button class="btn-alaire" onclick="confirmarAlAire(\''+sem.id+'\',\''+esc(sem.nombre)+'\')">&#9654; Poner al aire</button>';
+    }
+    h += '</div></div>';
+  });
+  el.innerHTML = h;
+}
+
+function confirmarAlAire(id, nombre){
+  if(!confirm('¿Confirmas que deseas poner al aire "'+nombre+'"?\n\nEsto dejará las demás ediciones como históricas y la agenda pública mostrará esta edición automáticamente.')) return;
+  setSemanaAlAire(id);
+}
+
+function setSemanaAlAire(id){
+  // First set all to false, then set the selected one to true
+  db.from('semanas').update({al_aire:false}).neq('id','__none__')
+    .then(function(r){
+      if(r.error){ alert('Error: '+r.error.message); return; }
+      db.from('semanas').update({al_aire:true}).eq('id',id)
+        .then(function(r2){
+          if(r2.error){ alert('Error: '+r2.error.message); return; }
+          reloadTable('semanas');
+          showToast('\u00a1La agenda ahora muestra "'+getSemanaLabel(id)+'"!');
+        });
+    });
+}
+
+// ── EVENTOS TAB (grouped by semana) ───────────────────────────────────
+function renderEventos(){
+  var el = document.getElementById('tablaEventos'); if(!el) return;
+  var filtered = eventos.filter(function(e){
+    var haystack = (e.titulo+' '+(e.lugar||'')+(e.facultad||'')).toLowerCase();
+    var semOk    = !filterSemStr || e.semana_id===filterSemStr;
+    var srchOk   = !searchEvStr || haystack.indexOf(searchEvStr)!==-1;
+    return semOk && srchOk;
+  });
+
+  // Group by semana_id preserving order
+  var groups = {}, order = [];
+  filtered.forEach(function(ev){
+    var sid = ev.semana_id || 'sin-semana';
+    if(!groups[sid]){ groups[sid]=[]; order.push(sid); }
+    groups[sid].push(ev);
+  });
+
+  if(!filtered.length){ el.innerHTML='<tr><td colspan="7" class="empty-msg">No hay eventos que mostrar.</td></tr>'; return; }
+
+  var h = '';
+  order.forEach(function(sid){
+    var sem = getSemana(sid);
+    var badge = sem && sem.al_aire
+      ? '<span class="chip-ev chip-live">&#9679; Al aire</span>'
+      : '<span class="chip-ev chip-hist">Hist\u00f3rico</span>';
+    var semNombre = sem ? sem.nombre : sid;
+    h += '<tr class="semana-group-row"><td colspan="7">'+
+      '<span class="sg-nombre">'+esc(semNombre)+'</span>'+badge+
+      +(ev.cupos_cerrados
+        ?'<button class="btn-row" style="color:var(--sage);font-weight:700" onclick="toggleCupos(\''+ev.id+'\',false)">Abrir cupos</button>'
+        :'<button class="btn-row" style="color:#c0392b" onclick="toggleCupos(\''+ev.id+'\',true)">Cerrar cupos</button>')+'</td></tr>';
+    groups[sid].forEach(function(ev){
+      var ri  = registros.filter(function(r){ return r.evento_id===ev.id; }).length;
+      var ai  = asistencias.filter(function(a){ return a.evento_id===ev.id; }).length;
+      var tipo = {'public':'P\u00fablico','private':'Privado','english':'English','limited':'Cupos lim.','bazar':'Bazar'}[ev.tipo]||ev.tipo;
+      var actChip = !ev.activo
+        ? '<span class="chip-ev chip-del">Eliminado</span>'
+        : ev.cupos_cerrados
+          ? '<span class="chip-ev" style="background:#e8e4df;color:#888">Sin cupos</span>'
+          : '<span class="chip-ev chip-act">Activo</span>';
+      h += '<tr class="ev-row'+(ev.activo?'':' row-del')+'" id="row-'+ev.id+'">';
+      h += '<td><span class="ev-dia">'+esc(getDayLabel(ev.dia))+'</span><br><span class="ev-id">'+esc(ev.id)+'</span></td>';
+      h += '<td class="ev-titulo-cell">'+esc(ev.titulo)+'</td>';
+      h += '<td>'+esc(ev.lugar||'–')+'</td>';
+      h += '<td><span class="chip-tipo">'+esc(tipo)+'</span></td>';
+      h += '<td class="cell-num">'+ri+'</td>';
+      h += '<td class="cell-num">'+ai+'</td>';
+      h += '<td>'+actChip+'<br>'+
+        '<button class="btn-row" onclick="openEditEvento(\''+ev.id+'\')">Editar</button>'+
+        (ev.activo?'<button class="btn-row btn-del" onclick="deleteEvento(\''+ev.id+'\')">Eliminar</button>':'')+
+        '<button class="btn-row" onclick="csvEvento(\''+ev.id+'\')">CSV</button>'+
+        '<button class="btn-row" style="color:var(--sakura)" onclick="openEventDetail(\''+ev.id+'\')">⌕ Detalle</button>'+'</td></tr>';
+    });
+  });
+  el.innerHTML = h;
+}
+
+// ── OPEN / SAVE EVENTO ────────────────────────────────────────────────
+function openNewEvento(){
+  editEventId = null;
+  clearEvForm();
+  document.getElementById('evModalTitle').textContent = 'Nuevo evento';
+  document.getElementById('eId').value = '';
+  document.getElementById('eId').removeAttribute('readonly');
+  openEvModal();
+}
+function openEditEvento(id){
+  var ev = eventos.find(function(e){ return e.id===id; }); if(!ev) return;
+  editEventId = id;
+  clearEvForm();
+  document.getElementById('evModalTitle').textContent = 'Editar evento';
+  document.getElementById('eId').value       = ev.id;
+  document.getElementById('eId').setAttribute('readonly','readonly');
+  document.getElementById('eTitulo').value   = ev.titulo||'';
+  document.getElementById('eDesc').value     = ev.descripcion||'';
+  document.getElementById('eLugar').value    = ev.lugar||'';
+  document.getElementById('eHI').value       = ev.hora_inicio_display||'';
+  document.getElementById('eHF').value       = ev.hora_fin_display||'';
+  document.getElementById('eInv').value      = ev.invitados||'';
+  document.getElementById('eFac').value      = ev.facultad||'';
+  document.getElementById('eOrden').value    = ev.orden||0;
+  document.getElementById('eNota').value     = ev.nota_estado||'';
+  document.getElementById('eMaps').value     = ev.maps_url||'';
+  setSelect('eTipo',   ev.tipo||'public');
+  setSelect('eEstado', ev.estado||'confirmado');
+  setSelect('eDia',    ev.dia||'');
+  setSelect('eSemana', ev.semana_id||'');
+  // Pre-fill time selects from UTC timestamps
+  if(ev.fecha_inicio){ setSelect('eHIh', utcToBogHHMM(ev.fecha_inicio)); }
+  if(ev.fecha_fin){    setSelect('eHFh', utcToBogHHMM(ev.fecha_fin));    }
+  openEvModal();
+}
+function clearEvForm(){
+  ['eId','eTitulo','eDesc','eLugar','eInv','eFac','eNota','eMaps'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('eOrden').value='0';
+  setSelect('eTipo','public'); setSelect('eEstado','confirmado');
+  var eCc=document.getElementById('eCuposCerrados'); if(eCc) eCc.checked=false;
+  setSelect('eDia',''); setSelect('eSemana',''); setSelect('eHI',''); setSelect('eHF','');
+  var eCc2=document.getElementById('eCuposCerrados'); if(eCc2) eCc2.checked=!!(ev&&ev.cupos_cerrados);
+  setSelect('eHIh',''); setSelect('eHFh','');
+}
+function setSelect(id,val){ var el=document.getElementById(id); if(el) el.value=val; }
+function openEvModal(){ document.getElementById('evModal').style.display='flex'; }
+function closeEvModal(){ document.getElementById('evModal').style.display='none'; editEventId=null; }
+
+function saveEvento(){
+  var id      = document.getElementById('eId').value.trim();
+  var titulo  = document.getElementById('eTitulo').value.trim();
+  var desc    = document.getElementById('eDesc').value.trim();
+  var lugar   = document.getElementById('eLugar').value.trim();
+  var hi_disp = document.getElementById('eHI').value.trim();
+  var hf_disp = document.getElementById('eHF').value.trim();
+  var hih     = document.getElementById('eHIh').value;
+  var hfh     = document.getElementById('eHFh').value;
+  var inv     = document.getElementById('eInv').value.trim();
+  var fac     = document.getElementById('eFac').value.trim();
+  var tipo    = document.getElementById('eTipo').value;
+  var estado  = document.getElementById('eEstado').value;
+  var dia     = document.getElementById('eDia').value.trim() || document.getElementById('eDia2').value.trim();
+  var semana  = document.getElementById('eSemana').value;
+  var nota    = document.getElementById('eNota').value.trim();
+  var maps    = document.getElementById('eMaps').value.trim();
+  var orden   = parseInt(document.getElementById('eOrden').value,10)||0;
+  if(!titulo){ alert('El título es obligatorio.'); return; }
+  if(!editEventId && !id){ alert('El ID es obligatorio.'); return; }
+  if(!editEventId && eventos.find(function(e){ return e.id===id; })){ alert('Ya existe un evento con ese ID.'); return; }
+
+  var payload = {
+    titulo:titulo, descripcion:desc||null, lugar:lugar||null,
+    hora_inicio_display:hi_disp||null, hora_fin_display:hf_disp||null,
+    dia:dia||'d1', invitados:inv||null, facultad:fac||null,
+    tipo:tipo, estado:estado,
+    cupos_cerrados:!!(document.getElementById('eCuposCerrados')&&document.getElementById('eCuposCerrados').checked),
+    nota_estado:nota||null, maps_url:maps||null,
+    orden:orden, semana_id:semana||null, activo:true
+  };
+  if(hih) payload.fecha_inicio = bogToUTC(dia||'d1', hih);
+  if(hfh) payload.fecha_fin    = bogToUTC(dia||'d1', hfh);
+
+  var btn = document.querySelector('#evModal .btn-ev-save');
+  if(btn){ btn.disabled=true; btn.textContent='Guardando...'; }
+
+  var op = editEventId
+    ? db.from('eventos').update(payload).eq('id', editEventId)
+    : db.from('eventos').insert(Object.assign({id:id}, payload));
+
+  op.then(function(res){
+    if(btn){ btn.disabled=false; btn.textContent='Guardar evento'; }
+    if(res.error){ alert('Error: '+res.error.message); return; }
+    closeEvModal();
+    reloadTable('eventos');
+    showToast(editEventId?'Evento actualizado':'Evento creado correctamente.');
+  });
+}
+
+function deleteEvento(id){
+  if(!confirm('¿Eliminar (desactivar) este evento?\nLos registros e asistencias se conservan.')) return;
+  db.from('eventos').update({activo:false}).eq('id',id).then(function(r){
+    if(r.error){ alert('Error: '+r.error.message); return; }
+    reloadTable('eventos'); showToast('Evento desactivado.');
+  });
+}
+
+// ── CSV EXPORTS ───────────────────────────────────────────────────────
+function downloadCSV(rows, name){
+  var bom = '\uFEFF';
+  var csv = bom + rows.join('\r\n');
+  var blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a'); a.href=url; a.download=name+'.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function csvEvento(evId){
+  var asis = asistencias.filter(function(a){ return a.evento_id===evId; });
+  if(!asis.length){ alert('No hay asistencias registradas para este evento.'); return; }
+  var ev = eventos.find(function(e){ return e.id===evId; })||{titulo:evId};
+  var header = ['Nombre','Documento','Tipo doc','Email','Unidad académica','Tipo participante',
+    'Programa','CreSer','Walk-in','Canal difusión','Cal. general','Contenido','Logística','Competencias globales','País sugerido','Fecha'];
+  var rows = [header.join(';')].concat(asis.map(function(a){
+    return [a.nombre,a.doc_id,a.tipo_doc,a.email,a.unidad_academica,a.tipo_participante,
+      a.programa,a.creser,a.walk_in?'Sí':'No',a.canal_difusion,
+      a.calificacion_general,a.aspecto_contenido,a.aspecto_logistica,a.competencias_globales,
+      a.pais_sugerido,a.created_at].join(';');
+  }));
+  downloadCSV(rows,'SI_Corea_'+evId+'_asistencias');
+}
+
+function csvGeneral(){
+  if(!asistencias.length){ alert('No hay asistencias registradas.'); return; }
+  var header = ['Evento ID','Evento','Semana','Día','Nombre','Documento','Email','Unidad académica',
+    'Tipo participante','Programa','CreSer','Walk-in','Canal difusión',
+    'Cal. general','Contenido','Logística','Competencias globales','País sugerido','Fecha'];
+  var rows = [header.join(';')].concat(asistencias.map(function(a){
+    var ev = eventos.find(function(e){ return e.id===a.evento_id; })||{};
+    return [a.evento_id,ev.titulo,getSemanaLabel(ev.semana_id),getDayLabel(ev.dia),
+      a.nombre,a.doc_id,a.email,a.unidad_academica,a.tipo_participante,
+      a.programa,a.creser,a.walk_in?'Sí':'No',a.canal_difusion,
+      a.calificacion_general,a.aspecto_contenido,a.aspecto_logistica,a.competencias_globales,
+      a.pais_sugerido,a.created_at].join(';');
+  }));
+  downloadCSV(rows,'SI_Corea_general_asistencias');
+}
+
+// ── ASISTENTES TAB ────────────────────────────────────────────────────
+function renderAsistentes(){
+  var el = document.getElementById('tablaAsistentes'); if(!el) return;
+  var list = asistencias.filter(function(a){
+    var ev = eventos.find(function(e){ return e.id===a.evento_id; });
+    var dOk=!filterDia   ||(ev&&ev.dia===filterDia);
+    var sOk=!filterSemana||(ev&&ev.semana_id===filterSemana);
+    var tOk=!filterAsisTerm||(a.nombre||'').toLowerCase().indexOf(filterAsisTerm)!==-1||(a.doc_id||'').indexOf(filterAsisTerm)!==-1||(a.unidad_academica||'').toLowerCase().indexOf(filterAsisTerm)!==-1;
+    return dOk&&sOk&&tOk;
+  });
+  if(!list.length){ el.innerHTML='<tr><td colspan="8" class="empty-msg">Sin asistencias para los filtros seleccionados.</td></tr>'; return; }
+  var h = '';
+  list.forEach(function(a){
+    var ev = eventos.find(function(e){ return e.id===a.evento_id; })||{titulo:a.evento_id};
+    var tipo = a.walk_in?'<span class="chip-walk">Walk-in</span>':'<span class="chip-pre">Pre-reg</span>';
+    h += '<tr><td>'+esc(ev.titulo)+'<br><span class="ev-id">'+esc(getDayLabel(ev.dia))+'</span></td>'+
+      '<td>'+esc(a.nombre||'–')+'</td><td>'+esc(a.doc_id)+'</td>'+
+      '<td>'+esc(a.unidad_academica||'–')+'</td><td>'+esc(a.tipo_participante||'–')+'</td>'+
+      '<td>'+tipo+'</td>'+
+      '<td class="cell-num">'+(a.calificacion_general||'–')+'</td>'+
+      '<td>'+esc(a.canal_difusion||'–')+'</td></tr>';
+  });
+  el.innerHTML = h;
+  document.getElementById('asisTotalLbl').textContent = list.length+' registros';
+}
+
+// ── EVALUACIÓN TAB ────────────────────────────────────────────────────
+function renderEval(){
+  var el = document.getElementById('evalSummary'); if(!el) return;
+  var asis = asistencias.filter(function(a){
+    if(!a.calificacion_general) return false;
+    if(filterSemEvalStr){ var ev2=eventos.find(function(e){ return e.id===a.evento_id; }); if(!ev2||ev2.semana_id!==filterSemEvalStr) return false; }
+    return true;
+  });
+  if(!asis.length){ el.innerHTML='<p class="empty-msg">Sin evaluaciones registradas.</p>'; return; }
+  var sum = function(f){ return asis.reduce(function(acc,a){ return acc+(a[f]||0); },0); };
+  var n   = asis.length;
+  var avg = function(f){ return (sum(f)/n).toFixed(2); };
+  var ratings = [0,0,0,0,0];
+  asis.forEach(function(a){ if(a.calificacion_general>=1&&a.calificacion_general<=5) ratings[a.calificacion_general-1]++; });
+  var maxRat = Math.max.apply(null,ratings)||1;
+  var bars = ratings.map(function(r,i){
+    var pct = Math.round(r/maxRat*100);
+    return '<div class="rat-row"><span class="rat-lbl">'+(i+1)+' &#9733;</span>'+
+      '<div class="rat-bar-wrap"><div class="rat-bar" style="width:'+pct+'%"></div></div>'+
+      '<span class="rat-cnt">'+r+'</span></div>';
+  }).reverse().join('');
+  var canalMap = {};
+  asis.forEach(function(a){ if(a.canal_difusion){ canalMap[a.canal_difusion]=(canalMap[a.canal_difusion]||0)+1; } });
+  var canales = Object.keys(canalMap).sort(function(a,b){ return canalMap[b]-canalMap[a]; }).slice(0,5);
+  var canalHtml = canales.map(function(c){
+    return '<div class="can-row"><span class="can-lbl">'+esc(c)+'</span><span class="can-cnt">'+canalMap[c]+'</span></div>';
+  }).join('');
+  var paises = {}; asis.forEach(function(a){ if(a.pais_sugerido) paises[a.pais_sugerido]=(paises[a.pais_sugerido]||0)+1; });
+  var paisList = Object.keys(paises).sort(function(a,b){ return paises[b]-paises[a]; }).slice(0,5);
+  var paisHtml = paisList.map(function(p){
+    return '<div class="can-row"><span class="can-lbl">'+esc(p)+'</span><span class="can-cnt">'+paises[p]+'</span></div>';
+  }).join('');
+
+  el.innerHTML =
+    '<div class="eval-grid">'+
+    '<div class="eval-card"><div class="eval-kv">'+avg('calificacion_general')+'</div><div class="eval-kl">Promedio general</div><div class="eval-sub">n='+n+'</div></div>'+
+    '<div class="eval-card"><div class="eval-kv">'+avg('aspecto_contenido')  +'</div><div class="eval-kl">Contenido y ponentes</div></div>'+
+    '<div class="eval-card"><div class="eval-kv">'+avg('aspecto_logistica')  +'</div><div class="eval-kl">Organizaci\u00f3n y log\u00edstica</div></div>'+
+    '<div class="eval-card"><div class="eval-kv">'+avg('competencias_globales')+'</div><div class="eval-kl">Competencias globales</div></div>'+
+    '</div>'+
+    '<div class="eval-row">'+
+    '<div class="eval-block"><h4>Distribución de calificaciones</h4>'+bars+'</div>'+
+    '<div class="eval-block"><h4>Canal de difusión</h4>'+(canalHtml||'<p class="empty-msg">Sin datos</p>')+'</div>'+
+    '<div class="eval-block"><h4>Pa\u00edses sugeridos</h4>'+(paisHtml||'<p class="empty-msg">Sin datos</p>')+'</div>'+
+    '</div>';
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────
+function switchTab(tab){
+  activeTab = tab;
+  var tabs  = document.querySelectorAll('.nav-tab'), i;
+  var sects = document.querySelectorAll('.tab-section');
+  for(i=0;i<tabs.length;i++)  tabs[i].classList.toggle('active', tabs[i].getAttribute('data-tab')===tab);
+  for(i=0;i<sects.length;i++) sects[i].style.display = sects[i].getAttribute('data-tab')===tab ? '' : 'none';
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────
+function showToast(msg){
+  var t=document.getElementById('toast');
+  if(!t) return;
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); },3200);
+}
+
+
+// ── CSV IMPORT ────────────────────────────────────────────────────────
+var importParsedRows = [];
+
+var CSV_COLUMNS = [
+  'id','semana_id','titulo','descripcion','lugar',
+  'hora_inicio_display','hora_fin_display','dia',
+  'hora_inicio_bog','hora_fin_bog',
+  'invitados','facultad','tipo','estado','maps_url','orden'
+];
+
+function downloadEventTemplate(){
+  var header = CSV_COLUMNS.join(';');
+  var note  = '# INSTRUCCIONES: Separador punto y coma (;). No modifiques los encabezados.;;;;;;;;;;;;;;;;;';
+  var note2 = '# tipo: public|private|english|limited|bazar  |  estado: confirmado|aplazado|cancelado;;;;;;;;;;;;;;;;;';
+  var note3 = '# hora_inicio_bog y hora_fin_bog: formato HH:MM (24h) para la ventana de asistencia;;;;;;;;;;;;;;;;;';
+  var ex1 = ['c1e1','corea-2026','Título del evento','Descripción breve','Auditorio Fundadores',
+    '8:00 a.m.','10:00 a.m.','d1','08:00','10:00','Nombre del ponente','Facultad / ARI',
+    'public','confirmado','https://maps.google.com/?q=UEB','1'].join(';');
+  var ex2 = ['c1e2','corea-2026','Segundo evento','Descripción','Sala de Juntas P4',
+    '10:30 a.m.','12:00 p.m.','d1','10:30','12:00','Otro ponente','ARI',
+    'english','confirmado','','2'].join(';');
+  var csv = '\uFEFF' + [note,note2,note3,header,ex1,ex2].join('\r\n');
+  var blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  var url  = URL.createObjectURL(blob);
+  var a = document.createElement('a'); a.href=url; a.download='plantilla_eventos_SI.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importEventosCSV(input){
+  var file = input.files[0]; if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var text = e.target.result;
+    if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
+    var lines = text.split(/\r?\n/).filter(function(l){
+      var t = l.trim();
+      // Skip empty lines, comment lines, and lines that are only semicolons
+      return t && !t.startsWith('#') && t.replace(/;/g,'').trim() !== '';
+    });
+    if(lines.length<2){ alert('Archivo sin datos suficientes.'); input.value=''; return; }
+    var sep = lines[0].indexOf(';')!==-1 ? ';' : ',';
+    var headers = lines[0].split(sep).map(function(h){ return h.trim(); });
+    var missing = CSV_COLUMNS.filter(function(c){ return headers.indexOf(c)===-1; });
+    if(missing.length){ alert('Columnas faltantes: '+missing.join(', ')); input.value=''; return; }
+    importParsedRows=[];
+    var errors=[];
+    for(var i=1;i<lines.length;i++){
+      var cols=lines[i].split(sep);
+      var row={};
+      headers.forEach(function(h,j){ row[h]=(cols[j]||'').trim(); });
+      if(!row.id){ errors.push('Fila '+(i+1)+': falta id'); continue; }
+      if(!row.titulo){ errors.push('Fila '+(i+1)+': falta titulo'); continue; }
+      if(row.tipo&&['public','private','english','limited','bazar'].indexOf(row.tipo)===-1){
+        errors.push('Fila '+(i+1)+': tipo inválido'); continue;
+      }
+      if(row.estado&&['confirmado','aplazado','cancelado'].indexOf(row.estado)===-1){
+        errors.push('Fila '+(i+1)+': estado inválido'); continue;
+      }
+      importParsedRows.push(row);
+    }
+    showImportPreview(importParsedRows, errors);
+    input.value='';
+  };
+  reader.readAsText(file,'utf-8');
+}
+
+function showImportPreview(rows, errors){
+  var modal = document.getElementById('importModal');
+  document.getElementById('importModalTitle').textContent = rows.length+' evento'+(rows.length!==1?'s':'')+' listos para importar';
+  document.getElementById('importResult').style.display='none';
+  var errHtml = errors.length ? '<strong style="color:var(--sakura)">'+errors.length+' fila(s) ignoradas:</strong> '+errors.join(' &middot; ')+'<br>' : '';
+  document.getElementById('importPreviewMsg').innerHTML = errHtml+'Vista previa de los primeros '+Math.min(rows.length,8)+' eventos:';
+  var pCols=['id','semana_id','titulo','dia','hora_inicio_display','tipo','estado'];
+  var thStyle='padding:.4rem .65rem;text-align:left;font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap';
+  var tdStyle='padding:.35rem .65rem;border-bottom:1px solid #f0eadf;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+  document.getElementById('importPreviewHead').innerHTML='<tr>'+pCols.map(function(c){ return '<th style="'+thStyle+'">'+c+'</th>'; }).join('')+'</tr>';
+  document.getElementById('importPreviewBody').innerHTML=rows.slice(0,8).map(function(r){
+    return '<tr>'+pCols.map(function(c){ return '<td style="'+tdStyle+'">'+(r[c]||'<em style=\"color:#ccc\">—</em>')+'</td>'; }).join('')+'</tr>';
+  }).join('');
+  modal.style.display='flex';
+}
+
+function closeImportModal(){
+  document.getElementById('importModal').style.display='none';
+  importParsedRows=[];
+}
+
+function confirmImport(){
+  if(!importParsedRows.length){ alert('No hay filas para importar.'); return; }
+  var btn=document.getElementById('importConfirmBtn');
+  btn.disabled=true; btn.textContent='Importando...';
+  var payloads=importParsedRows.map(function(r){
+    var dia=r.dia||'d1';
+    var fi=r.hora_inicio_bog?bogToUTC(dia,r.hora_inicio_bog):null;
+    var ff=r.hora_fin_bog?bogToUTC(dia,r.hora_fin_bog):null;
+    var p={id:r.id,semana_id:r.semana_id||null,titulo:r.titulo,
+      descripcion:r.descripcion||null,lugar:r.lugar||null,
+      hora_inicio_display:r.hora_inicio_display||null,
+      hora_fin_display:r.hora_fin_display||null,
+      dia:dia,invitados:r.invitados||null,facultad:r.facultad||null,
+      tipo:r.tipo||'public',estado:r.estado||'confirmado',
+      maps_url:r.maps_url||null,orden:parseInt(r.orden,10)||0,activo:true};
+    if(fi) p.fecha_inicio=fi;
+    if(ff) p.fecha_fin=ff;
+    return p;
+  });
+  var batches=[]; var sz=20;
+  for(var i=0;i<payloads.length;i+=sz) batches.push(payloads.slice(i,i+sz));
+  var ok=0, err=0;
+  function next(idx){
+    if(idx>=batches.length){
+      var res=document.getElementById('importResult');
+      res.style.display=''; res.style.background=err?'#fde8ee':'#d4f0e4';
+      res.style.color=err?'var(--sakura)':'var(--sage)';
+      res.textContent=ok+' evento(s) importado(s).'+(err?' '+err+' con error (IDs duplicados o datos inválidos).':'');
+      btn.disabled=false; btn.textContent='Importar eventos';
+      importParsedRows=[]; reloadTable('eventos'); return;
+    }
+    db.from('eventos').upsert(batches[idx],{onConflict:'id',ignoreDuplicates:true})
+      .then(function(r){ if(r.error){err+=batches[idx].length;console.error(r.error);}else ok+=batches[idx].length; next(idx+1); });
+  }
+  next(0);
+}
+
+
+// ── DISPLAY TIME ↔ ATTENDANCE WINDOW AUTO-SYNC ───────────────────────
+var displayToHHMM = {
+  '6:00 a.m.':'06:00','6:30 a.m.':'06:30','7:00 a.m.':'07:00','7:30 a.m.':'07:30',
+  '8:00 a.m.':'08:00','8:30 a.m.':'08:30','9:00 a.m.':'09:00','9:30 a.m.':'09:30',
+  '10:00 a.m.':'10:00','10:30 a.m.':'10:30','11:00 a.m.':'11:00','11:30 a.m.':'11:30',
+  '12:00 p.m.':'12:00','12:30 p.m.':'12:30',
+  '1:00 p.m.':'13:00','1:30 p.m.':'13:30','2:00 p.m.':'14:00','2:30 p.m.':'14:30',
+  '3:00 p.m.':'15:00','3:30 p.m.':'15:30','4:00 p.m.':'16:00','4:30 p.m.':'16:30',
+  '5:00 p.m.':'17:00','5:30 p.m.':'17:30','6:00 p.m.':'18:00','6:30 p.m.':'18:30',
+  '7:00 p.m.':'19:00','7:30 p.m.':'19:30','8:00 p.m.':'20:00','8:30 p.m.':'20:30',
+  '9:00 p.m.':'21:00','9:30 p.m.':'21:30','10:00 p.m.':'22:00'
+};
+function onDisplayTimeChange(which){
+  var dispId = which==='start' ? 'eHI' : 'eHF';
+  var winId  = which==='start' ? 'eHIh': 'eHFh';
+  var dispEl = document.getElementById(dispId);
+  var winEl  = document.getElementById(winId);
+  if(!dispEl||!winEl) return;
+  var mapped = displayToHHMM[dispEl.value];
+  // Only auto-fill the attendance window if it's still empty
+  if(mapped && !winEl.value) winEl.value = mapped;
+}
+
+// ── PARTICIPANTES SUB-TABS ──────────────────────────────────────────────
+function switchAsisView(view){
+  asisView=view;
+  var btnA=document.getElementById('btnTabAsis'),btnI=document.getElementById('btnTabInsc');
+  var wA=document.getElementById('tableAsistentesWrap'),wI=document.getElementById('tableInscritosWrap');
+  if(view==='asistentes'){
+    if(btnA){btnA.style.background='var(--ink)';btnA.style.color='var(--hanji)';}
+    if(btnI){btnI.style.background='transparent';btnI.style.color='var(--ink)';}
+    if(wA)wA.style.display=''; if(wI)wI.style.display='none';
+  } else {
+    if(btnI){btnI.style.background='var(--ink)';btnI.style.color='var(--hanji)';}
+    if(btnA){btnA.style.background='transparent';btnA.style.color='var(--ink)';}
+    if(wI)wI.style.display=''; if(wA)wA.style.display='none';
+  }
+  renderCurrentAsisView();
+}
+function renderCurrentAsisView(){ if(asisView==='inscritos') renderInscritos(); else renderAsistentes(); }
+function renderInscritos(){
+  var el=document.getElementById('tablaInscritos'); if(!el) return;
+  var list=registros.filter(function(r){
+    var ev=eventos.find(function(e){ return e.id===r.evento_id; });
+    var dOk=!filterDia   ||(ev&&ev.dia===filterDia);
+    var sOk=!filterSemana||(ev&&ev.semana_id===filterSemana);
+    var tOk=!filterAsisTerm||
+      (r.nombre||'').toLowerCase().indexOf(filterAsisTerm)!==-1||
+      (r.doc_id||'').indexOf(filterAsisTerm)!==-1||
+      (r.unidad_academica||'').toLowerCase().indexOf(filterAsisTerm)!==-1;
+    return dOk&&sOk&&tOk;
+  });
+  var lbl=document.getElementById('asisTotalLbl');
+  if(lbl) lbl.textContent=list.length+' inscripciones';
+  if(!list.length){ el.innerHTML='<tr><td colspan="8" class="empty-msg">Sin inscritos para los filtros seleccionados.</td></tr>'; return; }
+  var h='';
+  list.forEach(function(r){
+    var ev=eventos.find(function(e){ return e.id===r.evento_id; })||{titulo:r.evento_id};
+    var asistio=asistencias.some(function(a){ return a.evento_id===r.evento_id&&a.doc_id===r.doc_id; });
+    var chip=asistio
+      ?'<span style="font-size:.62rem;font-weight:700;padding:.14rem .45rem;border-radius:10px;background:#d4f0e4;color:var(--sage)">Asistió</span> '
+      :'<span style="font-size:.62rem;font-weight:700;padding:.14rem .45rem;border-radius:10px;background:#fdecd0;color:var(--gold)">Pendiente</span> ';
+    h+='<tr>'
+      +'<td>'+chip+esc(ev.titulo)+'<br><span class="ev-id">'+esc(getDayLabel(ev.dia))+'</span></td>'
+      +'<td>'+esc(r.nombre||'–')+'</td><td>'+esc(r.doc_id)+'</td>'
+      +'<td>'+esc(r.tipo_doc||'–')+'</td><td>'+esc(r.email||'–')+'</td>'
+      +'<td>'+esc(r.unidad_academica||'–')+'</td>'
+      +'<td>'+esc(r.tipo_participante||'–')+'</td>'
+      +'<td>'+esc(r.programa||'–')+'</td></tr>';
+  });
+  el.innerHTML=h;
+}
+function csvCurrentAsisView(){ if(asisView==='inscritos') csvInscritos(); else csvGeneral(); }
+function csvInscritos(){
+  if(!registros.length){ alert('No hay inscritos registrados.'); return; }
+  var header=['Evento','Semana','Día','Nombre','Documento','Tipo doc','Email',
+    'Unidad académica','Tipo participante','Programa','CreSer','Fecha inscripción','¿Asistió?'];
+  var rows=[header.join(';')].concat(registros.map(function(r){
+    var ev=eventos.find(function(e){ return e.id===r.evento_id; })||{};
+    var asistio=asistencias.some(function(a){ return a.evento_id===r.evento_id&&a.doc_id===r.doc_id; });
+    return [ev.titulo,getSemanaLabel(ev.semana_id),getDayLabel(ev.dia),
+      r.nombre,r.doc_id,r.tipo_doc,r.email,r.unidad_academica,
+      r.tipo_participante,r.programa,r.creser,r.created_at,asistio?'Sí':'No'].join(';');
+  }));
+  downloadCSV(rows,'SI_Corea_inscritos');
+}
+
+
+// ── EVENT DETAIL ──────────────────────────────────────────────────────
+function openEventDetail(evId){
+  var ev=eventos.find(function(e){ return e.id===evId; }); if(!ev) return;
+  var regs=registros.filter(function(r){ return r.evento_id===evId; });
+  var asis=asistencias.filter(function(a){ return a.evento_id===evId; });
+  var asisSet={}; asis.forEach(function(a){ asisSet[a.doc_id]=1; });
+  var walkIns=asis.filter(function(a){ return a.walk_in; }).length;
+  var ausentes=regs.filter(function(r){ return !asisSet[r.doc_id]; }).length;
+  var progMap={};
+  asis.forEach(function(a){
+    var p=(a.programa&&a.programa.trim())?a.programa.trim():(a.tipo_participante||'Sin clasificar');
+    progMap[p]=(progMap[p]||0)+1;
+  });
+  var progRows=Object.keys(progMap).sort(function(a,b){ return progMap[b]-progMap[a]; }).map(function(p){
+    var pct=asis.length?Math.round(progMap[p]/asis.length*100):0;
+    return '<tr><td style="padding:.32rem .65rem;font-size:.72rem">'+esc(p)+'</td>'
+      +'<td style="text-align:center;padding:.32rem .5rem;font-weight:700;font-size:.72rem">'+progMap[p]+'</td>'
+      +'<td style="padding:.32rem .65rem;width:60px"><div style="background:var(--hanji2);border-radius:4px;height:7px">'
+      +'<div style="background:var(--sakura);border-radius:4px;height:7px;width:'+pct+'%"></div></div></td></tr>';
+  }).join('');
+  var facMap={};
+  asis.forEach(function(a){ var f=a.unidad_academica||'Sin clasificar'; facMap[f]=(facMap[f]||0)+1; });
+  var facRows=Object.keys(facMap).sort(function(a,b){ return facMap[b]-facMap[a]; }).slice(0,8)
+    .map(function(f){ return '<tr><td style="padding:.3rem .65rem;font-size:.71rem">'+esc(f)+'</td>'
+      +'<td style="text-align:center;padding:.3rem .5rem;font-weight:700;font-size:.71rem">'+facMap[f]+'</td></tr>'; }).join('');
+  var allDocs={};
+  regs.forEach(function(r){ allDocs[r.doc_id]={data:r}; });
+  asis.forEach(function(a){ if(!allDocs[a.doc_id]) allDocs[a.doc_id]={data:a}; });
+  var listRows=Object.keys(allDocs).map(function(doc){
+    var d=allDocs[doc].data;
+    var chip=asisSet[doc]
+      ?'<span style="font-size:.6rem;padding:.1rem .38rem;border-radius:8px;background:#d4f0e4;color:var(--sage);font-weight:700">Asistió</span>'
+      :'<span style="font-size:.6rem;padding:.1rem .38rem;border-radius:8px;background:#fdecd0;color:var(--gold);font-weight:700">Inscrito</span>';
+    return '<tr><td style="padding:.28rem .55rem">'+chip+'</td>'
+      +'<td style="padding:.28rem .55rem;font-size:.71rem">'+esc(d.nombre||'–')+'</td>'
+      +'<td style="padding:.28rem .55rem;font-size:.71rem">'+esc(doc)+'</td>'
+      +'<td style="padding:.28rem .55rem;font-size:.71rem">'+esc(d.unidad_academica||'–')+'</td>'
+      +'<td style="padding:.28rem .55rem;font-size:.71rem">'+esc(d.tipo_participante||'–')+'</td>'
+      +'<td style="padding:.28rem .55rem;font-size:.71rem">'+esc(d.programa||'–')+'</td></tr>';
+  }).join('');
+  var S='background:var(--hanji);border-radius:10px;padding:.8rem .9rem;text-align:center;border-left:3px solid ';
+  var KV='font-size:1.5rem;font-weight:600;color:var(--ink);font-family:"Noto Serif",serif';
+  var KL='font-size:.62rem;color:#aaa;text-transform:uppercase;letter-spacing:.08em;margin-top:.1rem';
+  var TH='font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#bbb;margin-bottom:.5rem';
+  var h='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1.2rem">'
+    +'<div style="'+S+'var(--sakura)"><div style="'+KV+'">'+regs.length+'</div><div style="'+KL+'">Inscritos</div></div>'
+    +'<div style="'+S+'var(--sage)"><div style="'+KV+'">'+asis.length+'</div><div style="'+KL+'">Asistentes</div></div>'
+    +'<div style="'+S+'var(--gold)"><div style="'+KV+'">'+walkIns+'</div><div style="'+KL+'">Walk-ins</div></div>'
+    +'<div style="'+S+'#ccc"><div style="'+KV+'">'+ausentes+'</div><div style="'+KL+'">Ausentes</div></div>'
+    +'</div>';
+  if(progRows) h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-bottom:1.1rem">'
+    +'<div><div style="'+TH+'">Por programa / tipo</div>'
+    +'<div style="overflow-x:auto;border-radius:8px;border:1px solid var(--border)">'
+    +'<table style="width:100%;border-collapse:collapse"><tbody>'+progRows+'</tbody></table></div></div>'
+    +'<div><div style="'+TH+'">Por unidad acad&eacute;mica</div>'
+    +'<div style="overflow-x:auto;border-radius:8px;border:1px solid var(--border)">'
+    +'<table style="width:100%;border-collapse:collapse"><tbody>'+(facRows||'<tr><td class="empty-msg">Sin datos</td></tr>')
+    +'</tbody></table></div></div></div>';
+  h+=listRows
+    ?'<div style="'+TH+'">Lista de participantes</div>'
+     +'<div style="overflow-x:auto;border-radius:8px;border:1px solid var(--border);max-height:240px;overflow-y:auto">'
+     +'<table style="width:100%;border-collapse:collapse">'
+     +'<thead style="background:var(--ink);color:var(--hanji);position:sticky;top:0"><tr>'
+     +'<th style="padding:.38rem .55rem;font-size:.62rem;text-transform:uppercase">Estado</th>'
+     +'<th style="padding:.38rem .55rem;font-size:.62rem;text-transform:uppercase">Nombre</th>'
+     +'<th style="padding:.38rem .55rem;font-size:.62rem;text-transform:uppercase">Doc.</th>'
+     +'<th style="padding:.38rem .55rem;font-size:.62rem;text-transform:uppercase">Unidad</th>'
+     +'<th style="padding:.38rem .55rem;font-size:.62rem;text-transform:uppercase">Tipo</th>'
+     +'<th style="padding:.38rem .55rem;font-size:.62rem;text-transform:uppercase">Programa</th>'
+     +'</tr></thead><tbody>'+listRows+'</tbody></table></div>'
+    :'<p class="empty-msg">No hay participantes registrados para este evento.</p>';
+  document.getElementById('evDetailTitle').textContent=ev.titulo;
+  document.getElementById('evDetailDia').textContent=getDayLabel(ev.dia)+(ev.hora_inicio_display?' · '+ev.hora_inicio_display:'');
+  document.getElementById('evDetailBody').innerHTML=h;
+  var csvBtn=document.getElementById('evDetailCsvBtn');
+  if(csvBtn) csvBtn.onclick=function(){ csvEvento(evId); };
+  document.getElementById('evDetailModal').style.display='flex';
+}
+function closeEvDetailModal(){ document.getElementById('evDetailModal').style.display='none'; }
+
+
+// ── CUPOS CERRADOS ─────────────────────────────────────────────────────
+function toggleCupos(evId, cerrar){
+  var msg = cerrar
+    ? '¿Cerrar cupos? Los inscritos conservan su lugar. Solo se bloquean nuevos registros. La asistencia sigue disponible.'
+    : '¿Abrir cupos nuevamente?';
+  if (!confirm(msg)) return;
+  db.from('eventos').update({ cupos_cerrados: cerrar }).eq('id', evId)
+    .then(function(r){
+      if (r.error){ alert('Error: '+r.error.message); return; }
+      reloadTable('eventos');
+      showToast(cerrar ? 'Cupos cerrados. El registro queda bloqueado.' : 'Cupos abiertos nuevamente.');
+    });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function(){
+  if(isLoggedIn()){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('appShell').style.display='';
+    initDB(); loadAll();
+  } else {
+    document.getElementById('loginScreen').style.display='flex';
+    document.getElementById('appShell').style.display='none';
+    document.getElementById('loginPass').addEventListener('keydown',function(e){
+      if(e.key==='Enter') doLogin();
+    });
+  }
+  var evModal=document.getElementById('evModal');
+  if(evModal) evModal.addEventListener('click',function(e){ if(e.target===evModal) closeEvModal(); });
+});
+
+</script>
+</body>
+</html>
