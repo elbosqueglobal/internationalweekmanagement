@@ -273,7 +273,7 @@ table tr.row-del td{opacity:.4}
 </div>
 
 <div id="spinner"></div>
-<div id="loadErrorBanner" style="display:none;background:#fde8ee;color:#c8455a;padding:.65rem 2rem;font-size:.8rem;font-weight:600;border-bottom:1px solid #f5c0c8;position:sticky;top:0;z-index:100"></div>
+<div id="loadErrorBanner" style="display:none;background:#fde8ee;color:#c8455a;padding:.65rem 2rem;font-size:.8rem;font-weight:600;border-bottom:1px solid #f5c0c8;pointer-events:none;z-index:100"></div>
 
 <!-- APP -->
 <div id="appShell" style="display:none">
@@ -1024,17 +1024,25 @@ function renderEventos(){
 
 // ── OPEN / SAVE EVENTO ────────────────────────────────────────────────
 function openNewEvento(){
-  editEventId = null;
-  clearEvForm();
-  document.getElementById('evModalTitle').textContent = 'Nuevo evento';
-  document.getElementById('eId').value = '';
-  document.getElementById('eId').removeAttribute('readonly');
-  openEvModal();
+  try {
+    editEventId = null;
+    clearEvForm();
+    var mt=document.getElementById('evModalTitle'); if(mt) mt.textContent='Nuevo evento';
+    var ei=document.getElementById('eId');
+    if(ei){ ei.value=''; ei.removeAttribute('readonly'); }
+    openEvModal();
+  } catch(err){ alert('Error Nuevo evento: '+err.message); console.error(err); }
 }
 function openEditEvento(id){
-  var ev = eventos.find(function(e){ return e.id===id; }); if(!ev) return;
+  var ev = null; // declared before try (Safari scoping fix)
+  try {
+  ev = eventos.find(function(e){ return e.id===id; });
+  if(!ev){ alert('Evento no encontrado en memoria: '+id+'. Recarga la página.'); return; }
   editEventId = id;
   clearEvForm();
+  // Set cupos checkbox using ev (in scope here, unlike inside clearEvForm)
+  var eCcEdit=document.getElementById('eCuposCerrados');
+  if(eCcEdit) eCcEdit.checked=!!(ev&&ev.cupos_cerrados);
   document.getElementById('evModalTitle').textContent = 'Editar evento';
   document.getElementById('eId').value       = ev.id;
   document.getElementById('eId').setAttribute('readonly','readonly');
@@ -1056,20 +1064,20 @@ function openEditEvento(id){
   if(ev.fecha_inicio){ setSelect('eHIh', utcToBogHHMM(ev.fecha_inicio)); }
   if(ev.fecha_fin){    setSelect('eHFh', utcToBogHHMM(ev.fecha_fin));    }
   openEvModal();
+  } catch(err){ alert("Error Editar: "+err.message); console.error(err); }
 }
 function clearEvForm(){
   ['eId','eTitulo','eDesc','eLugar','eInv','eFac','eNota','eMaps'].forEach(function(id){
     var el=document.getElementById(id); if(el) el.value='';
   });
-  document.getElementById('eOrden').value='0';
+  var eOrd=document.getElementById('eOrden'); if(eOrd) eOrd.value='0';
   setSelect('eTipo','public'); setSelect('eEstado','confirmado');
   var eCc=document.getElementById('eCuposCerrados'); if(eCc) eCc.checked=false;
   setSelect('eDia',''); setSelect('eSemana',''); setSelect('eHI',''); setSelect('eHF','');
-  var eCc2=document.getElementById('eCuposCerrados'); if(eCc2) eCc2.checked=!!(ev&&ev.cupos_cerrados);
   setSelect('eHIh',''); setSelect('eHFh','');
 }
 function setSelect(id,val){ var el=document.getElementById(id); if(el) el.value=val; }
-function openEvModal(){ document.getElementById('evModal').style.display='flex'; }
+function openEvModal(){ var m=document.getElementById('evModal'); if(m){ m.style.cssText+='display:flex!important;visibility:visible;opacity:1;'; } else { console.error('evModal not found'); } }
 function closeEvModal(){ document.getElementById('evModal').style.display='none'; editEventId=null; }
 
 function saveEvento(){
@@ -1477,7 +1485,10 @@ function csvInscritos(){
 
 // ── EVENT DETAIL ──────────────────────────────────────────────────────
 function openEventDetail(evId){
-  var ev=eventos.find(function(e){ return e.id===evId; }); if(!ev) return;
+  var ev=null; // declared before try (Safari scoping fix)
+  try {
+  ev=eventos.find(function(e){ return e.id===evId; });
+  if(!ev){ alert('Evento no encontrado: '+evId); return; }
   var regs=registros.filter(function(r){ return r.evento_id===evId; });
   var asis=asistencias.filter(function(a){ return a.evento_id===evId; });
   var asisSet={}; asis.forEach(function(a){ asisSet[a.doc_id]=1; });
@@ -1552,6 +1563,7 @@ function openEventDetail(evId){
   var csvBtn=document.getElementById('evDetailCsvBtn');
   if(csvBtn) csvBtn.onclick=function(){ csvEvento(evId); };
   document.getElementById('evDetailModal').style.display='flex';
+  } catch(err){ alert('Error Detalle: '+err.message); console.error(err); }
 }
 function closeEvDetailModal(){ document.getElementById('evDetailModal').style.display='none'; }
 
