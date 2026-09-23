@@ -641,6 +641,13 @@ table tr.row-del td{opacity:.4}
       <div class="frow">
         <div class="fg"><label>Orden</label><input type="number" id="eOrden" value="0" min="0" /></div>
         <div class="fg"><label>URL Google Maps</label><input type="text" id="eMaps" placeholder="https://maps.google.com/..." /></div>
+      <div class="fg" style="margin-top:.3rem">
+        <label style="display:flex;align-items:center;gap:.55rem;cursor:pointer;
+          font-size:.82rem;font-weight:400;text-transform:none;letter-spacing:0;color:#555">
+          <input type="checkbox" id="eCuposCerrados" style="accent-color:var(--sakura);width:16px;height:16px">
+          <span>Cupos cerrados <span style="color:#aaa;font-size:.74rem">(bloquea registros, no afecta asistencia)</span></span>
+        </label>
+      </div>
       </div>
       <button class="btn-ev-save" onclick="saveEvento()">Guardar evento</button>
     </div>
@@ -989,13 +996,15 @@ function renderEventos(){
       var ri  = registros.filter(function(r){ return r.evento_id===ev.id; }).length;
       var ai  = asistencias.filter(function(a){ return a.evento_id===ev.id; }).length;
       var tipo = {'public':'P\u00fablico','private':'Privado','english':'English','limited':'Cupos lim.','bazar':'Bazar'}[ev.tipo]||ev.tipo;
-      var actChip = ev.activo
-        ? '<span class="chip-ev chip-act">Activo</span>'
-        : '<span class="chip-ev chip-del">Eliminado</span>';
+      var actChip = !ev.activo
+        ? '<span class="chip-ev chip-del">Eliminado</span>'
+        : ev.cupos_cerrados
+          ? '<span class="chip-ev" style="background:#e8e4df;color:#888">Sin cupos</span>'
+          : '<span class="chip-ev chip-act">Activo</span>';
       h += '<tr class="ev-row'+(ev.activo?'':' row-del')+'" id="row-'+ev.id+'">';
       h += '<td><span class="ev-dia">'+esc(getDayLabel(ev.dia))+'</span><br><span class="ev-id">'+esc(ev.id)+'</span></td>';
       h += '<td class="ev-titulo-cell">'+esc(ev.titulo)+'</td>';
-      h += '<td>'+esc(ev.lugar||'–')+'</td>';
+      h += '<td>'+esc(ev.lugar||'\u2013')+'</td>';
       h += '<td><span class="chip-tipo">'+esc(tipo)+'</span></td>';
       h += '<td class="cell-num">'+ri+'</td>';
       h += '<td class="cell-num">'+ai+'</td>';
@@ -1003,7 +1012,11 @@ function renderEventos(){
         '<button class="btn-row" onclick="openEditEvento(\''+ev.id+'\')">Editar</button>'+
         (ev.activo?'<button class="btn-row btn-del" onclick="deleteEvento(\''+ev.id+'\')">Eliminar</button>':'')+
         '<button class="btn-row" onclick="csvEvento(\''+ev.id+'\')">CSV</button>'+
-        '<button class="btn-row" style="color:var(--sakura)" onclick="openEventDetail(\''+ev.id+'\')">⌕ Detalle</button>'+'</td></tr>';
+        '<button class="btn-row" style="color:var(--sakura)" onclick="openEventDetail(\''+ev.id+'\')">\u2315 Detalle</button>'+
+        (ev.cupos_cerrados
+          ?'<button class="btn-row" style="color:var(--sage);font-weight:700" onclick="toggleCupos(\''+ev.id+'\',false)">Abrir cupos</button>'
+          :'<button class="btn-row" style="color:#c0392b" onclick="toggleCupos(\''+ev.id+'\',true)">Cerrar cupos</button>')+
+        '</td></tr>';
     });
   });
   el.innerHTML = h;
@@ -1050,7 +1063,9 @@ function clearEvForm(){
   });
   document.getElementById('eOrden').value='0';
   setSelect('eTipo','public'); setSelect('eEstado','confirmado');
+  var eCc=document.getElementById('eCuposCerrados'); if(eCc) eCc.checked=false;
   setSelect('eDia',''); setSelect('eSemana',''); setSelect('eHI',''); setSelect('eHF','');
+  var eCc2=document.getElementById('eCuposCerrados'); if(eCc2) eCc2.checked=!!(ev&&ev.cupos_cerrados);
   setSelect('eHIh',''); setSelect('eHFh','');
 }
 function setSelect(id,val){ var el=document.getElementById(id); if(el) el.value=val; }
@@ -1083,7 +1098,9 @@ function saveEvento(){
     titulo:titulo, descripcion:desc||null, lugar:lugar||null,
     hora_inicio_display:hi_disp||null, hora_fin_display:hf_disp||null,
     dia:dia||'d1', invitados:inv||null, facultad:fac||null,
-    tipo:tipo, estado:estado, nota_estado:nota||null, maps_url:maps||null,
+    tipo:tipo, estado:estado,
+    cupos_cerrados:!!(document.getElementById('eCuposCerrados')&&document.getElementById('eCuposCerrados').checked),
+    nota_estado:nota||null, maps_url:maps||null,
     orden:orden, semana_id:semana||null, activo:true
   };
   if(hih) payload.fecha_inicio = bogToUTC(dia||'d1', hih);
@@ -1537,6 +1554,21 @@ function openEventDetail(evId){
   document.getElementById('evDetailModal').style.display='flex';
 }
 function closeEvDetailModal(){ document.getElementById('evDetailModal').style.display='none'; }
+
+
+// ── CUPOS CERRADOS ─────────────────────────────────────────────────────
+function toggleCupos(evId, cerrar){
+  var msg = cerrar
+    ? '¿Cerrar cupos? Los inscritos conservan su lugar. Solo se bloquean nuevos registros. La asistencia sigue disponible.'
+    : '¿Abrir cupos nuevamente?';
+  if (!confirm(msg)) return;
+  db.from('eventos').update({ cupos_cerrados: cerrar }).eq('id', evId)
+    .then(function(r){
+      if (r.error){ alert('Error: '+r.error.message); return; }
+      reloadTable('eventos');
+      showToast(cerrar ? 'Cupos cerrados. El registro queda bloqueado.' : 'Cupos abiertos nuevamente.');
+    });
+}
 
 // ── INIT ──────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function(){
