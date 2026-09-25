@@ -311,6 +311,8 @@ table tr.row-del td{opacity:.4}
     <div class="topbar">
       <h1>Panel de seguimiento &mdash; Semana Internacional de Corea 2026</h1>
       <div class="topbar-actions">
+        <button class="top-btn" onclick="loadAll()" title="Recargar datos">&#8635; Recargar</button>
+        <button class="top-btn" onclick="verificarConteos()" title="Consulta directa a Supabase" style="font-size:.68rem">&#128203; Verificar</button>
         <button class="top-btn" onclick="csvGeneral()">&#8681; CSV General</button>
         <button class="top-btn primary" onclick="openNewEvento()">+ Nuevo evento</button>
       </div>
@@ -771,7 +773,7 @@ var filterSemStr= '';
 var filterSemana    = '';
 var filterSemEvalStr= '';
 var filterAsisTerm  = '';
-var asisView        = 'asistentes';
+var asisView        = 'inscritos';
 var editEventId = null;
 
 // ── HELPERS ───────────────────────────────────────────────────────────
@@ -817,19 +819,22 @@ function loadAll(){
   Promise.all([
     db.from('semanas').select('*').order('fecha_inicio',{ascending:false}),
     db.from('eventos').select('*').order('semana_id').order('dia').order('orden'),
-    db.from('registros').select('*'),
-    db.from('asistencias').select('*')
+    loadPaginated('registros',   [], 0),
+    loadPaginated('asistencias', [], 0)
   ]).then(function(results){
     showSpin(false);
-    var errs=results.map(function(r,i){return r.error?('[tabla '+i+'] '+r.error.message):null;}).filter(Boolean);
-    if(errs.length) showLoadError('Error Supabase: '+errs.join(' | ')+' — Verifica que el SQL v3 haya sido ejecutado.');
+    // results[0] y [1] son respuestas Supabase; [2] y [3] son arrays ya combinados
+    var errs=[];
+    if(results[0].error) errs.push('[semanas] '+results[0].error.message);
+    if(results[1].error) errs.push('[eventos] '+results[1].error.message);
+    if(errs.length) showLoadError('Error Supabase: '+errs.join(' | ')+'.');
     if(results[0].data) semanas     = results[0].data;
     if(results[1].data) eventos     = results[1].data;
-    if(results[2].data) registros   = results[2].data;
-    if(results[3].data) asistencias = results[3].data;
+    registros   = Array.isArray(results[2]) ? results[2] : (results[2].data||[]);
+    asistencias = Array.isArray(results[3]) ? results[3] : (results[3].data||[]);
     renderAll();
     populateSemanaSelects();
-    subscribeAll();
+    if(!window._monitorSubStarted){ window._monitorSubStarted=true; subscribeAll(); }
   }).catch(function(e){
     showSpin(false);
     showLoadError('Error de conexión: '+(e.message||String(e))+' — Recarga la página.');
@@ -868,18 +873,44 @@ function subscribeAll(){
     .on('postgres_changes',{event:'*',schema:'public',table:'semanas'},    function(){ reloadTable('semanas');    })
     .on('postgres_changes',{event:'*',schema:'public',table:'registros'},  function(){ reloadTable('registros');  })
     .on('postgres_changes',{event:'*',schema:'public',table:'asistencias'},function(){ reloadTable('asistencias')})
-    .subscribe();
+    .subscribe(function(status){
+      console.log('[Monitor] Realtime:',status);
+    });
+  // Polling de respaldo cada 60s por si Realtime falla
+  setInterval(function(){
+    Promise.all([
+      db.from('semanas').select('*').order('fecha_inicio',{ascending:false}),
+      db.from('eventos').select('*').order('semana_id').order('dia').order('orden'),
+      loadPaginated('registros',   [], 0),
+      loadPaginated('asistencias', [], 0)
+    ]).then(function(r){
+      var changed=false;
+      if(r[0].data&&JSON.stringify(r[0].data)!==JSON.stringify(semanas)){semanas=r[0].data;changed=true;}
+      if(r[1].data&&JSON.stringify(r[1].data)!==JSON.stringify(eventos)){eventos=r[1].data;changed=true;}
+      var newRegs = Array.isArray(r[2])?r[2]:(r[2].data||[]);
+      var newAsis = Array.isArray(r[3])?r[3]:(r[3].data||[]);
+      if(newRegs.length!==registros.length){registros=newRegs;changed=true;}
+      if(newAsis.length!==asistencias.length){asistencias=newAsis;changed=true;}
+      if(changed){ renderAll(); populateSemanaSelects(); }
+    });
+  }, 60000);
 }
 function reloadTable(t){
-  db.from(t).select('*').then(function(r){
-    if(!r.error){
-      if(t==='semanas')     semanas     = r.data;
-      if(t==='eventos')     eventos     = r.data.sort(function(a,b){ return (a.orden||0)-(b.orden||0); });
-      if(t==='registros')   registros   = r.data;
-      if(t==='asistencias') asistencias = r.data;
+  if(t==='registros'||t==='asistencias'){
+    loadPaginated(t,[],0).then(function(data){
+      if(t==='registros')   registros   = data;
+      if(t==='asistencias') asistencias = data;
       renderAll();
-    }
-  });
+    });
+  } else {
+    db.from(t).select('*').then(function(r){
+      if(!r.error){
+        if(t==='semanas') semanas = r.data;
+        if(t==='eventos') eventos = r.data.sort(function(a,b){ return (a.orden||0)-(b.orden||0); });
+        renderAll();
+      }
+    });
+  }
 }
 
 // ── KPIs ──────────────────────────────────────────────────────────────
@@ -1259,6 +1290,7 @@ function switchTab(tab){
   var sects = document.querySelectorAll('.tab-section');
   for(i=0;i<tabs.length;i++)  tabs[i].classList.toggle('active', tabs[i].getAttribute('data-tab')===tab);
   for(i=0;i<sects.length;i++) sects[i].style.display = sects[i].getAttribute('data-tab')===tab ? '' : 'none';
+  if(tab==='asistentes') switchAsisView('inscritos');
 }
 
 // ── TOAST ─────────────────────────────────────────────────────────────
@@ -1579,6 +1611,46 @@ function toggleCupos(evId, cerrar){
       if (r.error){ alert('Error: '+r.error.message); return; }
       reloadTable('eventos');
       showToast(cerrar ? 'Cupos cerrados. El registro queda bloqueado.' : 'Cupos abiertos nuevamente.');
+    });
+}
+
+
+// ── VERIFICAR CONTEOS ──────────────────────────────────────────────────
+function verificarConteos(){
+  Promise.all([
+    db.from('registros').select('*',{count:'exact',head:true}),
+    db.from('asistencias').select('*',{count:'exact',head:true}),
+    loadPaginated('registros',[],0)
+  ]).then(function(r){
+    var totalRegs  = r[0].count;
+    var totalAsis  = r[1].count;
+    var cargados   = Array.isArray(r[2]) ? r[2].length : (r[2].data ? r[2].data.length : 0);
+    var actSem     = semanas.find(function(s){ return s.al_aire; });
+    var actEvIds   = actSem ? eventos.filter(function(e){ return e.semana_id===actSem.id&&e.activo; }).map(function(e){ return e.id; }) : [];
+    var regsCorea  = (Array.isArray(r[2])?r[2]:(r[2].data||[])).filter(function(rx){ return actEvIds.indexOf(rx.evento_id)!==-1; }).length;
+    var msg = '=== Diagnóstico Supabase ===\n'
+      +'Total registros en DB: '+totalRegs+'\n'
+      +'Total asistencias en DB: '+totalAsis+'\n'
+      +'Registros cargados ahora: '+cargados+' (límite 5000)\n'
+      +'Registros para Corea (al aire): '+regsCorea+'\n'
+      +'KPI actual: '+registros.length+' cargados en memoria\n'
+      +'-----\n'
+      +(totalRegs > cargados ? '⚠ Hay más registros en DB que los cargados' : '✓ Todos los registros cargados');
+    alert(msg);
+    // Update memory with fresh data
+    var freshRegs=Array.isArray(r[2])?r[2]:(r[2].data||[]); if(freshRegs.length){ registros=freshRegs; renderAll(); }
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+
+// ── PAGINACIÓN — carga tablas grandes en bloques de 1000 ──────────────
+function loadPaginated(table, accumulated, from){
+  return db.from(table).select('*').range(from, from+999)
+    .then(function(r){
+      if(r.error || !r.data) return accumulated;
+      var combined = accumulated.concat(r.data);
+      if(r.data.length < 1000) return combined; // última página
+      return loadPaginated(table, combined, from+1000); // siguiente página
     });
 }
 
